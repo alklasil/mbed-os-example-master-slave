@@ -33,7 +33,8 @@ static void handle_message(char* msg, SocketAddress *source_addr);
 void start_advertisingToBackhaulNetwork();
 static void advertiseToBackhaulNetwork();
 //#define backhaul_network_addr_str "fd00:db8:ff1:0:c50b:ae81:5858:298f"
-#define backhaul_network_addr_str "fd00:db8:ff1::1"
+//#define backhaul_network_addr_str "fd00:db8:ff1::1"
+//uint8_t backhaul_network_addr[16] = {0};
 #define ADVERTISE_TO_BACKHAUL_NETWORK_WAIT_TIME (30.0)
 Ticker advertiseToBackhaulNetworkTicker;
 char master_buffer[256] = {0};
@@ -44,7 +45,7 @@ char master_buffer[256] = {0};
 
 
 // mesh local multicast to all nodes
-#define multicast_addr_str "ff02::1" // -- only other nodes (lights, buttons, etc), no routers and beyond
+#define multicast_addr_str "ff15::abba:abba" // -- only other nodes (lights, buttons, etc), no routers and beyond
 //#define multicast_addr_str "ff02::2"
 #define TRACE_GROUP "example"
 #define UDP_PORT 1234
@@ -65,7 +66,6 @@ EventQueue queue;
 Ticker ticker;
 
 uint8_t multi_cast_addr[16] = {0};
-uint8_t backhaul_network_addr[16] = {0};
 uint8_t receive_buffer[256];
 // how many hops the multicast message can go
 static const int16_t multicast_hops = 10;
@@ -78,7 +78,7 @@ void start_mesh_led_control_example(NetworkInterface * interface){
 
     network_if = interface;
     stoip6(multicast_addr_str, strlen(multicast_addr_str), multi_cast_addr);
-	stoip6(backhaul_network_addr_str, strlen(backhaul_network_addr_str), backhaul_network_addr);
+	//stoip6(backhaul_network_addr_str, strlen(backhaul_network_addr_str), backhaul_network_addr);
     init_socket();
 }
 
@@ -99,7 +99,7 @@ static void advertiseToBackhaulNetwork(){
     length = snprintf(buf, sizeof(buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
     MBED_ASSERT(length > 0);
     tr_debug("Sending advertise to backhaul network");
-    SocketAddress send_sockAddr(backhaul_network_addr, NSAPI_IPv6, UDP_PORT);
+    SocketAddress send_sockAddr(multicast_addr, NSAPI_IPv6, UDP_PORT);
     my_socket->sendto(send_sockAddr, buf, 20);
     //After message is sent, it is received from the network
 }
@@ -258,6 +258,13 @@ static void init_socket()
         my_button.fall(&my_button_isr);
         my_button.mode(PullUp);
     }
+    
+    ns_ipv6_mreq_t mreq;
+    memcpy(mreq.ipv6mr_multiaddr, multi_cast_addr, 16);
+    mreq.ipv6mr_interface = 0:
+
+    socket_setsockopt(my_socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_JOIN_GROUP, mreq, sizeof mreq);
+    
     //let's register the call-back function.
     //If something happens in socket (packets in or out), the call-back is called.
     my_socket->sigio(callback(handle_socket));
