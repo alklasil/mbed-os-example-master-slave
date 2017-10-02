@@ -68,7 +68,7 @@ class MbedNetworkInterface:
     def __init__(self):
         self.nodelist = NodeList()
         self.sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-        #import struct
+        # FIXME (group joinin can be performed more or less the same way as done for example in c, does not work on windows)
         #self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, "1" + "2")
         self.sock.bind((UDP_IP, UDP_PORT))
         
