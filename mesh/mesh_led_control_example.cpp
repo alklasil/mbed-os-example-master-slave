@@ -38,6 +38,9 @@ static void advertiseToBackhaulNetwork();
 #define ADVERTISE_TO_BACKHAUL_NETWORK_WAIT_TIME (30.0)
 Ticker advertiseToBackhaulNetworkTicker;
 char master_buffer[256] = {0};
+#define MASTER_IP_STORED_LENGTH 14 // strlen(non-common-part-of-the-ip(master-ip))
+#define MASTER_IP_MAX_COUNT 10 // max number of ips to take commands from at a time
+char master_ip_table[MASTER_IP_MAX_COUNT][MASTER_IP_STORED_LENGTH] = {0}; //FIXME
 #define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "advertise:light"
 //#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "advertise:button"
 #endif
@@ -171,25 +174,27 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
     uint16_t group=0xffff;
 	
 	
-	#if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
-	
-	// if (is_slave)
-	
-	if (strstr(msg, "set:master_buffer;") != NULL) {
-		tr_debug("set master %s\n", msg);
-		strncpy(master_buffer, msg, sizeof(master_buffer));
-		return;
-	}
-	
-	if (strstr(master_buffer, source_addr->get_ip_address()) == NULL) {
-		tr_debug("not master: %s\n", source_addr->get_ip_address());
-		return;
-	}
-	
-	#endif
-	
-	// fi (is_slave)
-	
+    #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
+
+    // if (is_slave), not deeded (yet)
+
+    if (strstr(msg, "master;") != NULL) {
+        tr_debug("set master %s\n", msg);
+        //strncpy(master_buffer, msg, sizeof(master_buffer));
+        // FIXME
+        return;
+    }
+
+    //FIXME (master_ip_table)
+    if (strstr(master_buffer, source_addr->get_ip_address()) == NULL) {
+        tr_debug("not master: %s\n", source_addr->get_ip_address());
+        return;
+    }
+
+    #endif
+
+    // fi (is_slave)
+
     if (strstr(msg, "t:lights;") == NULL) {
        return;
     }
