@@ -59,7 +59,7 @@
         "rpl-lifetime-unit": 60,
         "rpl-pcs": 1,
         "rpl-ocp": 1,
-        "multicast-addr": "ff15::abba:abba",
+        "multicast-addr": "ff15::ABBA:ABBA",
         "LED": "NC",
         "SERIAL_TX": "NC",
         "SERIAL_RX": "NC",
