@@ -9,5 +9,10 @@ Usage:
 
 TODO:
 
-* stuff
+* [ ] add comments
+* [ ] clear code
+* [ ] change image if old mode unknown and new mode other than unknown (+ node-mode named file exists) when advertise
+* [ ] resolve cached images related issue(s)
+* [ ] other minor things
+* Add Other TODOs in this list
 
