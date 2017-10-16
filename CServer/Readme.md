@@ -12,6 +12,7 @@ TODO:
 * [ ] add comments
 * [ ] clear code
 * [ ] change image if old mode unknown and new mode other than unknown (+ node-mode named file exists) when advertise
+* [ ] make is_active/running node outdated handling better, and show when node is outdated to the user in the ui
 * [ ] resolve cached images related issue(s)
 * [ ] other minor things
 * Add Other TODOs in this list
