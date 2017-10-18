@@ -223,11 +223,12 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   // get cmd address
   char * cmd = strchr((cmd = cmd_slave_buffer), ';') + 1;
   if (cmd == NULL) return;
+  if (cmd[0] == ';') return;
   msg[cmd - msg - 1] = '\0';
 
   bool is_slave = false;
   char * cmd_slave_next = cmd_slave;
-  while (cmd_slave_next != NULL) {
+  do {
     cmd_slave_next = strchr(cmd_slave, ',');
     if (cmd_slave_next != NULL) cmd_slave_next[0] = '\0';
     if (strstr(slave_buffer, cmd_slave) != NULL) {
@@ -236,8 +237,8 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
       is_slave = true;
       break;
     }
-    cmd_slave = cmd_slave_next + 1;
-  }
+    if (cmd_slave_next != NULL) cmd_slave = cmd_slave_next + 1;
+  } while (cmd_slave_next != NULL);
 
   if (is_slave == false) return;
 
