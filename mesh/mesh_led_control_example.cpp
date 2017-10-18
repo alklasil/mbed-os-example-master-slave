@@ -214,10 +214,16 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   char * cmd = strchr((cmd = cmd_slave_buffer), ';') + 1;
   if (cmd == NULL) return;
   msg[cmd - msg - 1] = '\0';
-
+  /*tr_debug("master_buffer: ",master_buffer);
+  tr_debug("slave_buffer: %s",slave_buffer);
+  tr_debug("cmd_slave: %s",cmd_slave);
+  tr_debug("cmd: %s",cmd);
+  tr_debug("cmd_slave_buffer: %s",cmd_slave_buffer);
+*/
   bool is_slave = false;
   while (cmd_slave < cmd) {
-    char * cmd_slave_next = strchr(cmd_slave, ',');
+    tr_debug("cmd_slave: %s",cmd_slave);
+    char * cmd_slave_next = strchr(cmd_slave, ';');
     if (cmd_slave_next == NULL) cmd_slave_next = cmd - 1;
     else cmd_slave_next[0] = '\0';
     if (strstr(slave_buffer, cmd_slave) != NULL) {
@@ -256,13 +262,11 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   }
 */
   #endif
-
   // fi (is_slave)
   // .[2K.[33m[WARN][ip6r]: LL addr of fd00:db8:ff1::1 not found.[0m
   if (strstr(cmd, "t:lights;") == NULL) {
     return;
   }
-
   /*if (strstr(cmd, "s:?") != NULL) {
     if (state == 1) state = 0;
     else state = 1;
@@ -271,7 +275,6 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   } else if (strstr(cmd, "s:0;") != NULL) {
     state = 0;
   }
-
   // 0==master, 1==default group
   //char *cmd_ptr = strstr(cmd, "g:");
   //if (cmd_ptr) {
