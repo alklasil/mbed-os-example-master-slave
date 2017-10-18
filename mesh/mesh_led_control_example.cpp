@@ -183,13 +183,12 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   if (msg[0] == '#') return;    // for control messages and so on, yes there are better ways to handle this but i aint got the time for implementing such
 
   // check if the message is ill formed for the purpose
-  int i = 0;
-  for (i = 0; i < strlen(msg); i++) {
-    if (!isprint((unsigned char)msg[i])) {
-      tr_debug("Unprintable char (code %d) at position %d. Probably garbage!\n",
-        (unsigned char)msg[i], i);
-      return 0;
-    }
+  char * c = msg;
+  while (*(++c) != '\0') {
+        if (!isprint(*c)) {
+            printf("Unprintable char %c at msg[%d]\n", *c, c-msg);
+            return;
+        }
   }
 
   uint8_t state=button_status;
