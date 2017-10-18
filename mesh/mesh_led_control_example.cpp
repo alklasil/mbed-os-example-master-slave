@@ -45,7 +45,15 @@ char * master_buffer = NULL, * slave_buffer = NULL;
 //#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "advertise:button"
 #endif
 
-
+/* Here for now until needed in other places in lwIP */
+#ifndef isprint
+#define in_range(c, lo, up)  (c >= lo && c <= up)
+#define isprint(c)           in_range(c, 0x20, 0x7f)
+#define isdigit(c)           in_range(c, '0', '9')
+#define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
+#define islower(c)           in_range(c, 'a', 'z')
+#define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
+#endif
 
 // mesh local multicast to all nodes
 //#define multicast_addr_str "ff15::abba:abba" // -- only other nodes (lights, buttons, etc), no routers and beyond
@@ -143,7 +151,7 @@ static void send_message() {
   */
   #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
   //length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:%s;", master_buffer ? master_buffer : "g", MY_GROUP, (button_status ? "1" : "0")) + 1;
-  length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:?;", master_buffer ? master_buffer : "g", MY_GROUP)
+  length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:?;", master_buffer ? master_buffer : "g", MY_GROUP);
   #else
   length = snprintf(buf, sizeof(buf), "t:lights;g:%03d;s:%s;", MY_GROUP, (button_status ? "1" : "0")) + 1;
   #endif
@@ -207,7 +215,7 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
       master_buffer = NULL;
       return;
     }
-    master_buffer = strchr((master_buffer = slave_buffer), ';') + 1;
+    master_buffer = strchr(slave_buffer, ';') + 1;
     if (master_buffer == NULL) return;
     slave_buffer[master_buffer - slave_buffer - 1] = '\0';
     if (master_buffer[0] == '\0') master_buffer = NULL;
@@ -221,7 +229,7 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   char * cmd_slave_buffer = msg;
   char * cmd_slave = cmd_slave_buffer;
   // get cmd address
-  char * cmd = strchr((cmd = cmd_slave_buffer), ';') + 1;
+  char * cmd = strchr(cmd_slave_buffer, ';') + 1;
   if (cmd == NULL) return;
   if (cmd[0] == ';') return;
   msg[cmd - msg - 1] = '\0';
