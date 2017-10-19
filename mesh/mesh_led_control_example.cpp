@@ -13,12 +13,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #include "mbed.h"
 #include "nanostack/socket_api.h"
 #include "mesh_led_control_example.h"
 #include "common_functions.h"
 #include "ip6string.h"
 #include "mbed-trace/mbed_trace.h"
+#include <ctype.h>
 
 static void init_socket();
 static void handle_socket();
@@ -44,8 +46,6 @@ char * master_buffer = NULL, * slave_buffer = NULL;
 #define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:light" // begin with # character, these messages are ignored by normal nodes
 //#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "advertise:button"
 #endif
-
-
 
 // mesh local multicast to all nodes
 //#define multicast_addr_str "ff15::abba:abba" // -- only other nodes (lights, buttons, etc), no routers and beyond
@@ -142,7 +142,8 @@ static void send_message() {
   * t:lights;g:<group_id>;s:<1|0>;\0
   */
   #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
-  length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:%s;", master_buffer ? master_buffer : "g", MY_GROUP, (button_status ? "1" : "0")) + 1;
+  //length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:%s;", master_buffer ? master_buffer : "g", MY_GROUP, (button_status ? "1" : "0")) + 1;
+  length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:?;", master_buffer ? master_buffer : "g", MY_GROUP);
   #else
   length = snprintf(buf, sizeof(buf), "t:lights;g:%03d;s:%s;", MY_GROUP, (button_status ? "1" : "0")) + 1;
   #endif
@@ -181,6 +182,15 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
 
   if (msg[0] == '#') return;    // for control messages and so on, yes there are better ways to handle this but i aint got the time for implementing such
 
+  // check if the message is ill formed for the purpose
+  
+  char * c = msg;
+  while (isprint(*(c++))) ;
+  if (*(--c) != '\0') {
+    printf("Unprintable char %c at msg[%d]\n", *c, c-msg);
+    return;
+  }
+
   uint8_t state=button_status;
   // uint16_t group=0xffff;
 
@@ -197,7 +207,7 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
       master_buffer = NULL;
       return;
     }
-    master_buffer = strchr((master_buffer = slave_buffer), ';') + 1;
+    master_buffer = strchr(slave_buffer, ';') + 1;
     if (master_buffer == NULL) return;
     slave_buffer[master_buffer - slave_buffer - 1] = '\0';
     if (master_buffer[0] == '\0') master_buffer = NULL;
@@ -211,70 +221,43 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   char * cmd_slave_buffer = msg;
   char * cmd_slave = cmd_slave_buffer;
   // get cmd address
-  char * cmd = strchr((cmd = cmd_slave_buffer), ';') + 1;
+  char * cmd = strchr(cmd_slave_buffer, ';') + 1;
   if (cmd == NULL) return;
+  if (cmd[0] == ';') return;
   msg[cmd - msg - 1] = '\0';
-  /*tr_debug("master_buffer: ",master_buffer);
-  tr_debug("slave_buffer: %s",slave_buffer);
-  tr_debug("cmd_slave: %s",cmd_slave);
-  tr_debug("cmd: %s",cmd);
-  tr_debug("cmd_slave_buffer: %s",cmd_slave_buffer);
-*/
+
   bool is_slave = false;
-  while (cmd_slave < cmd) {
-    tr_debug("cmd_slave: %s",cmd_slave);
-    char * cmd_slave_next = strchr(cmd_slave, ';');
-    if (cmd_slave_next == NULL) cmd_slave_next = cmd - 1;
-    else cmd_slave_next[0] = '\0';
+  char * cmd_slave_next = cmd_slave;
+  do {
+    cmd_slave_next = strchr(cmd_slave, ',');
+    if (cmd_slave_next != NULL) cmd_slave_next[0] = '\0';
     if (strstr(slave_buffer, cmd_slave) != NULL) {
       tr_debug( "slave_buffer|cmd_slave: %s|%s\n", slave_buffer, cmd_slave );
       // eg. slave_buffer = "g1,g2", cmd_slave = "g" -> all groups, g1 -> only group g1
       is_slave = true;
       break;
     }
-    cmd_slave = cmd_slave_next + 1;
-  }
+    if (cmd_slave_next != NULL) cmd_slave = cmd_slave_next + 1;
+  } while (cmd_slave_next != NULL);
 
   if (is_slave == false) return;
 
-
-  // if (is_slave)
-/*
-  if (strstr(msg, "master;") != NULL) {
-    tr_debug("set master %s\n", msg);
-    strncpy(master_buffer, msg[strlen("master;") + 1], sizeof(msg) - (strlen("master;") + 1));
-    return;
-  }
-
-  int i = 0;
-  int master_found = false;
-  char cmp_addr[ADDR_UNIQUE_LEN + 1];
-  strncpy(cmp_addr, source_addr->get_ip_address(), sizeof(cmp_addr));
-  for (i = 0; i < 255; i += ADDR_UNIQUE_LEN) {
-    if (strncmp(&(master_buffer[i]), cmp_addr, ADDR_UNIQUE_LEN) == 0) {
-      master_found = true;
-    } else {
-      tr_debug("not master: %s\n", source_addr->get_ip_address());
-    }
-  }
-  if (master_found == false) {
-    return;
-  }
-*/
   #endif
+
   // fi (is_slave)
   // .[2K.[33m[WARN][ip6r]: LL addr of fd00:db8:ff1::1 not found.[0m
   if (strstr(cmd, "t:lights;") == NULL) {
     return;
   }
-  /*if (strstr(cmd, "s:?") != NULL) {
-    if (state == 1) state = 0;
-    else state = 1;
-  } else*/ if (strstr(cmd, "s:1;") != NULL) {
+
+  if (strstr(cmd, "s:?") != NULL) {
+    state = (state == 1) ? 0 : 1;
+  } else if (strstr(cmd, "s:1;") != NULL) {
     state = 1;
   } else if (strstr(cmd, "s:0;") != NULL) {
     state = 0;
   }
+
   // 0==master, 1==default group
   //char *cmd_ptr = strstr(cmd, "g:");
   //if (cmd_ptr) {
@@ -299,10 +282,10 @@ static void receive() {
     if (length > 0) {
       int timeout_value = MESSAGE_WAIT_TIMEOUT;
       tr_debug("Packet from %s\n", source_addr.get_ip_address());
-      timeout_value += rand() % 30;
-      tr_debug("Advertisiment after %d seconds", timeout_value);
-      messageTimeout.detach();
-      messageTimeout.attach(&messageTimeoutCallback, timeout_value);
+      //timeout_value += rand() % 30;
+      //tr_debug("Advertisiment after %d seconds", timeout_value);
+      //messageTimeout.detach();
+      //messageTimeout.attach(&messageTimeoutCallback, timeout_value);
       // Handle command - "on", "off"
       handle_message((char*)receive_buffer, &source_addr);
     }
