@@ -13,12 +13,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #include "mbed.h"
 #include "nanostack/socket_api.h"
 #include "mesh_led_control_example.h"
 #include "common_functions.h"
 #include "ip6string.h"
 #include "mbed-trace/mbed_trace.h"
+#include <ctype.h>
 
 static void init_socket();
 static void handle_socket();
@@ -43,16 +45,6 @@ char master_slave_buffer[MSG_SIZE] = {0};
 char * master_buffer = NULL, * slave_buffer = NULL;
 #define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:light" // begin with # character, these messages are ignored by normal nodes
 //#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "advertise:button"
-#endif
-
-/* Here for now until needed in other places in lwIP */
-#ifndef isprint
-#define in_range(c, lo, up)  (c >= lo && c <= up)
-#define isprint(c)           in_range(c, 0x20, 0x7f)
-#define isdigit(c)           in_range(c, '0', '9')
-#define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
-#define islower(c)           in_range(c, 'a', 'z')
-#define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
 #endif
 
 // mesh local multicast to all nodes
@@ -191,12 +183,12 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   if (msg[0] == '#') return;    // for control messages and so on, yes there are better ways to handle this but i aint got the time for implementing such
 
   // check if the message is ill formed for the purpose
+  
   char * c = msg;
-  while (*(++c) != '\0') {
-        if (!isprint(*c)) {
-            printf("Unprintable char %c at msg[%d]\n", *c, c-msg);
-            return;
-        }
+  while (isprint(*(c++))) ;
+  if (*(--c) != '\0') {
+    printf("Unprintable char %c at msg[%d]\n", *c, c-msg);
+    return;
   }
 
   uint8_t state=button_status;
