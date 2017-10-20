@@ -96,10 +96,10 @@ int main()
 
     printf("connected. IP = %s\n", mesh.get_ip_address());
 
-	#if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
-	start_advertisingToBackhaulNetwork();
-	#endif
-	
+#if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
+    start_advertisingToBackhaulNetwork();
+#endif
+
 #if MBED_CONF_APP_ENABLE_LED_CONTROL_EXAMPLE
     // Network found, start socket example
     if (MBED_CONF_APP_BUTTON != NC && MBED_CONF_APP_LED != NC) {
