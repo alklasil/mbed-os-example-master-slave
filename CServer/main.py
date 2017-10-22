@@ -7,22 +7,20 @@ import MbedNetworkInterface
 import GraphicalUserInterface
 
 def main():
-
     print "main started"
     threads = []
     is_running = True
     graphicalUserInterface = GraphicalUserInterface.GraphicalUserInterface()
     networkInterface = MbedNetworkInterface.MbedNetworkInterface()
 
-    # collect node related data
+    # Collect node related data
     def collect_data():
         time.sleep(2)
         while is_running:
             networkInterface.serve(gnode_parent=graphicalUserInterface.get_root())
         print "collect_data DOWN"
 
-    # remove outdated data
-
+    # Remove outdated data
     def remove_outdated_data():
         time.sleep(2)
         #networkInterface.nodelist.update("::1", "light", graphicalUserInterface.get_root())
@@ -36,26 +34,25 @@ def main():
                 networkInterface.get_nodelist().removeOutdated()
         print "remove_outdated_data DOWN"
 
+    # Start graphical user interface
     def gui_main():
         graphicalUserInterface.run()
         print "gui_main DOWN"
 
 
-    # start threads
-
+    # Start threads
     threads.append(threading.Thread(name="gui_main", target=gui_main))
     threads.append(threading.Thread(name="collect_data", target=collect_data))
     threads.append(threading.Thread(name="remove_outdated_data", target=remove_outdated_data))
 
-    # Start threads
     for t in threads:
         t.start()
 
     threads[0].join()
 
-    # exit
+    # Exit
     is_running = False
-    # stop collect-data thread (is waiting for socket to receive a message before checking is_running)
+    # Stop collect-data thread (is waiting for socket to receive a message before checking is_running)
     networkInterface.sendMessage(addr="::1")
 
 
