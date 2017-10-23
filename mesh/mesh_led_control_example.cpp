@@ -69,7 +69,10 @@ static void advertiseToBackhaulNetwork();
 Ticker advertiseToBackhaulNetworkTicker;
 char master_slave_buffer[MSG_SIZE] = {0};
 char * master_buffer = NULL, * slave_buffer = NULL;
-#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:light" // begin with # character, these messages are ignored by normal nodes
+// begin advertise with # character, these messages are ignored by normal nodes
+#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d", button_status
+// whether to advertise automatically or not
+bool advertise;
 #endif
 
 void start_mesh_led_control_example(NetworkInterface * interface){
@@ -90,9 +93,13 @@ static void messageTimeoutCallback()
 
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
 static void advertiseToBackhaulNetwork(){
+  if (!advertise) {
+    tr_debug("Don't Send advertise to backhaul network");
+    return;
+  }
   tr_debug("Send advertise to backhaul network");
 
-  char buf[sizeof(ADVERTISE_TO_BACKHAUL_NETWORK_STRING)];
+  char buf[MSG_SIZE];
   int length;
 
   length = snprintf(buf, sizeof(buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
@@ -104,6 +111,7 @@ static void advertiseToBackhaulNetwork(){
 }
 
 void start_advertisingToBackhaulNetwork(){
+  advertise = true;
   advertiseToBackhaulNetworkTicker.attach(advertiseToBackhaulNetwork, ADVERTISE_TO_BACKHAUL_NETWORK_WAIT_TIME);
 }
 #endif
@@ -208,9 +216,17 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
     if (master_buffer[0] == '\0') master_buffer = NULL;
     return;
   } else if (strncmp(msg, "advertise;", strlen("advertise;")) == 0) {
-    // force advertise [experimental]
-    advertiseToBackhaulNetwork();
-    return;
+    if (strstr(msg, "s:1;") != NULL) {
+      advertise = 1;
+      return;
+    } else if (strstr(msg, "s:0;") != NULL) {
+      advertise = 0;
+      return;
+    } else {
+      // force advertise
+      advertiseToBackhaulNetwork();
+      return;
+    }
   } else if (strncmp(msg, "send_message;", strlen("send_message;")) == 0) {
     // force send_message (can virtualize light to work as button) [experimental]
     send_message();
