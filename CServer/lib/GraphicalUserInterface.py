@@ -57,7 +57,7 @@ class ContentClass(GridLayout, Widget):
         self.slave = kwargs["slave"]
 
         self.nodemover = NodeMover(slave=self.slave, background_color=(0.8,0.8,0.8,0), text = "light", width = 1)
-        self.textinput = TextInput(text="conf;g;g", background_color=(0.8,0.8,0.8,0.1), height=self.slave.size[1], width=100)
+        self.textinput = TextInput(text="conf;g;g", background_color=(0.8,0.8,0.8,0.2), height=self.slave.size[1], width=100)
         #self.send_button = Button(text="Send", background_color=(1,1,1,0.1), color=(0,0,0,1))
 
         self.add_widget(self.textinput)

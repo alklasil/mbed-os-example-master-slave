@@ -33,7 +33,7 @@ def main():
                     break
                 time.sleep(1)
             if is_running:
-                MNI.get_nodelist().removeOutdated()
+                networkInterface.get_nodelist().removeOutdated()
         print "remove_outdated_data DOWN"
 
     def gui_main():
