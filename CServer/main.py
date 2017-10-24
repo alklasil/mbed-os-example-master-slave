@@ -3,16 +3,16 @@
 import threading
 import time
 #private
-import MbedNetworkInterface
-import GraphicalUserInterface
+import lib.MbedNetworkInterface as MNI
+import lib.GraphicalUserInterface as GUI
 
 def main():
 
     print "main started"
     threads = []
     is_running = True
-    graphicalUserInterface = GraphicalUserInterface.GraphicalUserInterface()
-    networkInterface = MbedNetworkInterface.MbedNetworkInterface()
+    graphicalUserInterface = GUI.GraphicalUserInterface()
+    networkInterface = MNI.MbedNetworkInterface()
 
     # collect node related data
     def collect_data():
@@ -28,12 +28,12 @@ def main():
         #networkInterface.nodelist.update("::1", "light", graphicalUserInterface.get_root())
         #networkInterface.nodelist.update("2001:0:9d38:6abd:10f4:3b69:ab0f:92a9", "button", graphicalUserInterface.get_root())
         while is_running:
-            for i in range(MbedNetworkInterface.OUDATE_TIME):
+            for i in range(MNI.OUDATE_TIME):
                 if not is_running:
                     break
                 time.sleep(1)
             if is_running:
-                networkInterface.get_nodelist().removeOutdated()
+                MNI.get_nodelist().removeOutdated()
         print "remove_outdated_data DOWN"
 
     def gui_main():
