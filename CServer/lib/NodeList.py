@@ -1,0 +1,65 @@
+import time
+import Node
+
+class NodeList:
+
+    def __init__(self, networkInterface):
+        self.nodes = []
+        self.networkInterface = networkInterface
+
+    def get_networkInterface(self):
+        return self.networkInterface
+
+    def update(self, addr, node_mode, gnode_parent):
+        timestamp = int(time.time())
+        found = False
+        for node in self.nodes:
+            print "-" + addr + "-VS-" + node.get_addr() + "-"
+            if addr == node.get_addr():
+                print "exist"
+                node.set_is_running(True)
+                node.set_timestamp(timestamp)
+                # update also image here (TODO)
+                found = True
+                break
+        if not found:
+            self.nodes.append(Node.Node(timestamp, addr, node_mode, self, gnode_parent))
+
+    def removeOutdated(self):
+        # remove outdated nodes
+        timestamp = int(time.time())
+        for idx, node in self.nodes:
+            if node.is_running:
+                if timestamp - node.get_timestamp() > OUDATE_TIME:
+                    node.set_is_running(False)
+
+    def show(self):
+        print self.nodes
+
+    def send(self, sock, addr, nodes=None):
+        if nodes is None:
+            nodes = self.nodes
+        msg = "master;" + (node.get_addr(length=24) + ";" for node in nodes)
+        print 'sent:' + msg
+        sock.sendto(msg, (addr, UDP_PORT))
+
+    def toList():
+        return ((node.get_addr(), node.get_node_mode()) for node in self.nodes)
+
+    def get_nodes():
+        return self.nodes
+
+    def get_nodes_by_mode(self, mode):
+        for node in self.nodes:
+            if node.get_node_mode() is mode:
+                yield node
+
+    def get_slave_nodes(self):
+        for node in self.nodes:
+            if node.get_is_master():
+                yield node
+
+    def get_master_nodes(self):
+        for node in self.nodes:
+            if node.get_is_slave():
+                yield node

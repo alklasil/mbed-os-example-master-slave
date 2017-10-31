@@ -8,7 +8,7 @@ import lib.GraphicalUserInterface as GUI
 
 def main():
 
-    print "main started"
+    print("main started")
     threads = []
     is_running = True
     graphicalUserInterface = GUI.GraphicalUserInterface()
@@ -19,7 +19,7 @@ def main():
         time.sleep(2)
         while is_running:
             networkInterface.serve(gnode_parent=graphicalUserInterface.get_root())
-        print "collect_data DOWN"
+        print("collect_data DOWN")
 
     # remove outdated data
 
@@ -34,11 +34,11 @@ def main():
                 time.sleep(1)
             if is_running:
                 networkInterface.get_nodelist().removeOutdated()
-        print "remove_outdated_data DOWN"
+        print("remove_outdated_data DOWN")
 
     def gui_main():
         graphicalUserInterface.run()
-        print "gui_main DOWN"
+        print("gui_main DOWN")
 
 
     # start threads
