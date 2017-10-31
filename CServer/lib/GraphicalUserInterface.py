@@ -92,7 +92,7 @@ class GraphicalNode(GridLayout, ButtonBehavior, Image, Widget):
         super(GraphicalNode, self).__init__(**kwargs)
         self.node = kwargs["node"]
         self.cols = 1
-        self.txt = ContentClass(text="asdf", multiline=False, slave=self)
+        self.txt = ContentClass(text="asdf", multiline=True, slave=self)
         self.center_x = 500
         self.add_widget(self.txt)
 

@@ -24,7 +24,7 @@ class Node:
         self.nodelist = nodelist
         self.conf = "conf;g;g"
 
-        self.gnode = GraphicalUserInterface.GraphicalNode(color=(1,1,1,0.4), source=node_mode +".gif", center_x=50, center_y=50, node=self)
+        self.gnode = GraphicalUserInterface.GraphicalNode(color=(1,1,1,0.4), source="images/" + node_mode + ".gif", center_x=50, center_y=50, node=self)
         gnode_parent.add_widget(self.gnode)
 
     def get_nodelist(self):
