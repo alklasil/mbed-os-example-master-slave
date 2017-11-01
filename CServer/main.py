@@ -5,6 +5,8 @@ import time
 #private
 import lib.MbedNetworkInterface as MNI
 import lib.GraphicalUserInterface as GUI
+import lib.TestEnvironment as TestEnv
+
 
 def main():
 
@@ -12,7 +14,8 @@ def main():
     threads = []
     is_running = True
     graphicalUserInterface = GUI.GraphicalUserInterface()
-    networkInterface = MNI.MbedNetworkInterface()
+    testEnvironment = TestEnv.TestEnvironment()
+    networkInterface = MNI.MbedNetworkInterface(testEnvironment)
 
     # collect node related data
     def collect_data():
@@ -25,8 +28,8 @@ def main():
 
     def remove_outdated_data():
         time.sleep(2)
-        networkInterface.nodelist.update("::1", "light", graphicalUserInterface.get_root())
-        #networkInterface.nodelist.update("2001:0:9d38:6abd:10f4:3b69:ab0f:92a9", "button", graphicalUserInterface.get_root())
+        #networkInterface.nodelist.update("", "::1", "light", graphicalUserInterface.get_root())
+        networkInterface.nodelist.update("", "2001:0:9d38:6abd:10f4:3b69:ab0f:92a9", "button", graphicalUserInterface.get_root())
         while is_running:
             for i in range(MNI.OUDATE_TIME):
                 if not is_running:
@@ -35,6 +38,13 @@ def main():
             if is_running:
                 networkInterface.get_nodelist().removeOutdated()
         print("remove_outdated_data DOWN")
+
+    def run_test_environment():
+        time.sleep(2)
+        while is_running:
+            time.sleep(1)
+            testEnvironment.run()
+        print("run_test_environment DOWN")
 
     def gui_main():
         graphicalUserInterface.run()
@@ -46,6 +56,7 @@ def main():
     threads.append(threading.Thread(name="gui_main", target=gui_main))
     threads.append(threading.Thread(name="collect_data", target=collect_data))
     threads.append(threading.Thread(name="remove_outdated_data", target=remove_outdated_data))
+    threads.append(threading.Thread(name="run_test_environment", target=run_test_environment))
 
     # Start threads
     for t in threads:

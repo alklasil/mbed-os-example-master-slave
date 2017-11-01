@@ -16,7 +16,7 @@ IP_LENGTH_USED = 14
 
 class MbedNetworkInterface:
 
-    def __init__(self):
+    def __init__(self, testEnvironment):
         self.nodelist = NodeList.NodeList(self)
 
         addrinfo = socket.getaddrinfo(UDP_IP, None)[0]
@@ -33,6 +33,8 @@ class MbedNetworkInterface:
 
         mreq = group_bin + struct.pack('@I', 0)
         self.sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+
+        self.testEnvironment = testEnvironment
 
         print "connected"
 
@@ -70,15 +72,19 @@ class MbedNetworkInterface:
         print "received message:", data
         print "   sent by:", addr
 
-        if "advertise:" in data:
-            node_mode = data[len("advertise:"):]
-            self.nodelist.update(addr, node_mode, gnode_parent)
+        if "#advertise:" in data:
+            node_mode = data[len("#advertise:"):data.index(';')]
+            node_state = 1 if "s:1;" in data else 0 # add this to nodes attrs when adding visual
+            self.nodelist.update(data, addr, node_mode, gnode_parent)
         else:
             node_mode = "unknown"
-            self.nodelist.update(addr, node_mode, gnode_parent)
+            self.nodelist.update(data, addr, node_mode, gnode_parent)
 
     def get_nodelist(self):
         return self.nodelist
+
+    def get_testEnvironment(self):
+        return self.testEnvironment
 
 def main():
     networkInterface = MbedNetworkInterface()

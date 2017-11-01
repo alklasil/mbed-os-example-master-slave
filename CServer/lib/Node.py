@@ -7,32 +7,16 @@ class Node:
         self.addr = addr
         self.node_mode = node_mode
         self.is_running = True
-        self.is_master = False
-        self.is_slave = False # could be either slave or master (or master and slave, eg. light and button in the same device)
         self.nodelist = nodelist
         self.conf = "conf;g;g"
+        self.testing = False
 
-        self.gnode = GraphicalNode.GraphicalNode(color=(1,1,1,0.8), source="images/" + node_mode + ".gif", center_x=50, center_y=50, node=self)
-        gnode_parent.add_widget(self.gnode)
+        if not gnode_parent is None:
+            self.gnode = GraphicalNode.GraphicalNode(color=(1,1,1,0.8), source="images/" + node_mode + ".gif", center_x=50, center_y=50, node=self)
+            gnode_parent.add_widget(self.gnode)
 
     def get_nodelist(self):
         return self.nodelist
-
-    def set_is_master(self, is_master=True):
-        self.is_master = is_master
-
-    def get_is_master(self):
-        return self.is_master
-
-    def set_is_slave(self, is_slave=True):
-        self.is_slave = is_slave
-        print "set is slave"
-
-    def get_is_slave(self):
-        return self.is_slave
-
-    def clear_masters():
-        pass
 
     def get_addr(self, length=0):
         if length <= 0 or length > len(self.addr):
@@ -68,3 +52,23 @@ class Node:
 
     def get_printable(self):
         return self.get_node_mode() + "; " + self.get_addr() + "; " + self.get_conf()
+
+    def run_tests(self, testEnvironment):
+        testEnvironment.run_tests(self)
+
+    def set_received(self, received):
+        self.received = received
+
+    def get_received(self):
+        return self.received
+
+    def test(self):
+        if self.testing == False:
+            testEnv = self.get_nodelist().get_networkInterface().get_testEnvironment()
+            testEnv.add_test_node(self)
+
+    def set_testing(self, testing):
+        self.testing = testing
+
+    def get_testing(self):
+        return self.testing

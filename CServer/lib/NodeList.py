@@ -10,9 +10,9 @@ class NodeList:
     def get_networkInterface(self):
         return self.networkInterface
 
-    def update(self, addr, node_mode, gnode_parent):
+    def update(self, data, addr, node_mode, gnode_parent):
         timestamp = int(time.time())
-        found = False
+        _node = None
         for node in self.nodes:
             print "-" + addr + "-VS-" + node.get_addr() + "-"
             if addr == node.get_addr():
@@ -20,10 +20,12 @@ class NodeList:
                 node.set_is_running(True)
                 node.set_timestamp(timestamp)
                 # update also image here (TODO)
-                found = True
+                _node = node
                 break
-        if not found:
-            self.nodes.append(Node.Node(timestamp, addr, node_mode, self, gnode_parent))
+        if _node is None:
+            _node = Node.Node(timestamp, addr, node_mode, self, gnode_parent)
+            self.nodes.append(_node)
+        _node.set_received(data) # FIXME: perhaps only when testing?
 
     def removeOutdated(self):
         # remove outdated nodes

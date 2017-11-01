@@ -2,8 +2,12 @@ from kivy.uix.widget import Widget
 from kivy.uix.textinput import TextInput
 from kivy.graphics import Color, Line, Rectangle
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
+from kivy.uix.button import Button
 from kivy.input.motionevent import MotionEvent
+
+import TestEnvironment
 
 class ContentClass(GridLayout, Widget):
     def __init__(self, **kwargs):
@@ -12,18 +16,20 @@ class ContentClass(GridLayout, Widget):
 
         self.slave = kwargs["slave"]
 
-        self.nodemover = NodeMover(slave=self.slave, background_color=(0.8,0.8,0.8,0), text = "light", width = 1)
-        self.textinput = TextInput(text="conf;g;g", background_color=(0.8,0.8,0.8,0.1), height=self.slave.size[1], width=100)
+        self.textinput = TextInput(text="conf;g;g", background_color=(0.8,0.8,0.8,0.1))
+        self.run_tests_button = Button(text = "run_tests", background_color=(0.8,0.8,0.8,0.7))
+        self.nodemover = NodeMover(slave=self.slave, background_color=(0.8,0.8,0.8,0.5), size_hint_y=None, height=0)
         #self.send_button = Button(text="Send", background_color=(1,1,1,0.1), color=(0,0,0,1))
 
         self.add_widget(self.textinput)
         self.add_widget(self.nodemover)
-        #self.add_widget(self.send_button)
+        self.add_widget(self.run_tests_button)
+        import threading
+        def run_tests_button_pressed(instance):
+            #TestEnvironment.TestEnvironment().run_tests(self.slave.get_node())).start()
+            self.slave.get_node().test()
 
-        #def send_button_pressed(instance):
-        #    print "presseed"
-
-        #self.send_button.bind(on_press=send_button_pressed)
+        self.run_tests_button.bind(on_press=run_tests_button_pressed)
 
     def get_text(self):
         return self.textinput.text
