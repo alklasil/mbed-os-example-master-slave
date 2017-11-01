@@ -54,7 +54,7 @@ class TestEnvironment:
 
             if k == 'title':
               print v
-            if k == 'max_wait_time':
+            elif k == 'max_wait_time':
               max_wait_time = v
             elif k == 'send':
               node.send(msg=v)
