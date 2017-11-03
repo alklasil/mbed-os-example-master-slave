@@ -86,11 +86,11 @@ class TestEnvironment:
             if k == 'title':
               title(v)
             elif k == 'max_wait_time':
-              max_wait_time = set_max_wait_time(value)
+              max_wait_time = set_max_wait_time(v)
             elif k == 'send':
               send(v)
             elif k == 'receive':
-              result, details = receive(value)
+              result, details = receive(v)
               print result
               print details
             elif k == 'outcome':

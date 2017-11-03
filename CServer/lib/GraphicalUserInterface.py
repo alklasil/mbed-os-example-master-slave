@@ -35,6 +35,9 @@ class MyBackground(Widget):
     def load(self):
         pass
 
+    def get_size(self):
+        return self.size
+
 
 class GraphicalUserInterface(App):
 

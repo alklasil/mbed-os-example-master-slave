@@ -52,8 +52,12 @@ class Node:
         if addr is None: addr = self.addr
         self.get_nodelist().get_networkInterface().sendMessage(msg=msg, addr=self.get_addr())
 
-    def get_printable(self):
-        return self.get_node_mode() + "; " + self.get_addr() + "; " + self.get_conf()
+    def get_printable(self, c="; "):
+        return (
+              "mode: " + self.get_node_mode() + c
+            + "addr: " + self.get_addr() + c
+            + "conf: " + self.get_conf()
+        )
 
     def run_tests(self, testEnvironment):
         testEnvironment.run_tests(self)
