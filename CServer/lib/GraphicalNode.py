@@ -89,3 +89,6 @@ class GraphicalNode(GridLayout, Image, Widget):
 
     def get_node(self):
         return self.node
+
+    def set_source(self, source):
+        self.source=source

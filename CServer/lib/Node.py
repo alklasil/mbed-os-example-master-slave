@@ -17,6 +17,9 @@ class Node:
     def get_nodelist(self):
         return self.nodelist
 
+    def get_gnode(self):
+        return self.gnode
+
     def get_addr(self, length=0):
         if length <= 0 or length > len(self.addr):
             return self.addr
