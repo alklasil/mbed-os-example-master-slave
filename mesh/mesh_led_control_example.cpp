@@ -71,7 +71,7 @@ Ticker advertiseToBackhaulNetworkTicker;
 char master_slave_buffer[MSG_SIZE] = {0};
 char * master_buffer = NULL, * slave_buffer = NULL;
 // begin advertise with # character, these messages are ignored by normal nodes
-#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d", button_status
+#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d", state
 // whether to advertise automatically or not
 bool advertise;
 #endif
