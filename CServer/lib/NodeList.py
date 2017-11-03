@@ -14,9 +14,9 @@ class NodeList:
         timestamp = int(time.time())
         _node = None
         for node in self.nodes:
-            print "-" + addr + "-VS-" + node.get_addr() + "-"
+            print ("-", addr, "-VS-", node.get_addr(), "-")
             if addr == node.get_addr():
-                print "exist"
+                print ("node exist")
                 node.set_is_running(True)
                 node.set_timestamp(timestamp)
                 # update also image here (TODO)
@@ -37,13 +37,6 @@ class NodeList:
 
     def show(self):
         print self.nodes
-
-    def send(self, sock, addr, nodes=None):
-        if nodes is None:
-            nodes = self.nodes
-        msg = "master;" + (node.get_addr(length=24) + ";" for node in nodes)
-        print 'sent:' + msg
-        sock.sendto(msg, (addr, UDP_PORT))
 
     def toList():
         return ((node.get_addr(), node.get_node_mode()) for node in self.nodes)

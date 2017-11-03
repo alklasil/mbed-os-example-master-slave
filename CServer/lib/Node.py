@@ -1,4 +1,3 @@
-from kivy.uix.widget import Widget
 import GraphicalNode
 
 class Node:

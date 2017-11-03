@@ -31,9 +31,6 @@ class TestEnvironment:
           print "running tests <BEGIN>"
 
           self.run_sequence(node, self.sequence_advertise(node, node_copy))
-          # run_sequence(sequence_test_light(node))
-          # run_sequence(sequence_test_button(node))
-          # run_sequence(or something..)
 
           print "running tests <END>"
 
@@ -43,53 +40,64 @@ class TestEnvironment:
 
     def run_sequence(self, node, sequence):
 
-      # parseter
+      max_wait_time = 30
+
+      def title(v):
+          print v
+
+      def set_max_wait_time(v):
+          max_wait_time = v
+
+      def send(v):
+          node.send(msg=v)
+
+      def receive(v):
+          msg, async = v
+          timestamp = int(time.time())
+          node.set_received(None)
+          timeout = True
+          time.sleep(1)
+          details = []
+          while int(time.time()) - timestamp < max_wait_time:
+              received = node.get_received()
+              if not received is None:
+                  if not msg in received:
+                      timeout = False
+                      details.append(v, " not found in ", received)
+                      if not async:
+                          return "failure", details
+                  else:
+                    details.append(v, " found in ", received)
+                    return "success", details
+              # this is a poor way, use traps or such instead
+              time.sleep(1)
+          details.append(node)
+          return "timeout", details
+
+      def outcome(v):
+          if not v():
+            return "failure"
+          else:
+            return "success"
+
       for item in sequence.get_items():
-        for i in item:
-            k = i[0]
-            v = i[1]
-            print "......"
-            print k, v
-            print "------"
+        for k,v in item:
 
             if k == 'title':
-              print v
+              title(v)
             elif k == 'max_wait_time':
-              max_wait_time = v
+              max_wait_time = set_max_wait_time(value)
             elif k == 'send':
-              node.send(msg=v)
+              send(v)
             elif k == 'receive':
-              print "sdfasdfsadREC"
-              # receive (should node(in ui) store last received message?)
-              timestamp = int(time.time())
-              node.set_received(None)
-              timeout = True
-              time.sleep(1)
-              while int(time.time()) - timestamp < max_wait_time:
-                  # consider for example traps of some sort (when received changes) instead of a whileloop
-                  received = node.get_received()
-                  if not received is None:
-                      if not v in received:
-                          # FIXME
-                          print '(received != item.receive)'
-                          print item
-                          timeout = False
-                          break
-                      else:
-                        # SUCCESS
-                        print "suzess"
-                        break
-                  time.sleep(1)
-              if timeout == True:
-                  print "timeout"
+              result, details = receive(value)
+              print result
+              print details
             elif k == 'outcome':
-              if not v():
-                # FIXME
-                print "item.outcome() failure"
-                print item
-              else:
-                # SUCCESS
-                pass
+              result = outcome(v)
+              print result
+            # TODO:
+            #  * better stats keeping (what tests failed, what succeeded, etc)
 
     def sequence_advertise(self, node, node_copy):
 
@@ -99,8 +107,8 @@ class TestEnvironment:
       sequence.add([
         ('title', '<TEST> advertise(1) -- query'),
         ('send', 'advertise;'),
-        ('max_wait_time', 30),
-        ('receive', '#advertise:' + node.get_node_mode() + ';'),
+        ('max_wait_time', 300),
+        ('receive', ('#advertise:' + node.get_node_mode() + ';', True)),
         ('outcome', lambda: 1 == 1) # FIXME change to something that makes sense
       ])
       sequence.add([
