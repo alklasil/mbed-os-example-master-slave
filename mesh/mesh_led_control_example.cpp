@@ -39,7 +39,7 @@ static void handle_message(char* msg, SocketAddress *source_addr);
 //#define multicast_addr_str "ff02::2"
 uint8_t multicast_addr[16] = {0};
 #define TRACE_GROUP "example"
-#define UDP_PORT 1234
+#define UDP_PORT 1030
 #define MESSAGE_WAIT_TIMEOUT (30.0)
 #define MASTER_GROUP 0
 #define MY_GROUP 1
@@ -61,6 +61,7 @@ uint8_t receive_buffer[MSG_SIZE];
 // how many hops the multicast message can go
 static const int16_t multicast_hops = 10;
 bool button_status = 0;
+uint8_t state = 0;
 
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
 void start_advertisingToBackhaulNetwork();
@@ -143,10 +144,9 @@ static void send_message() {
   * t:lights;g:<group_id>;s:<1|0>;\0
   */
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
-  //length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:%s;", master_buffer ? master_buffer : "g", MY_GROUP, (button_status ? "1" : "0")) + 1;
-  length = snprintf(buf, sizeof(buf), "%s;t:lights;g:%03d;s:?;", master_buffer ? master_buffer : "g", MY_GROUP);
+  length = snprintf(buf, sizeof(buf), "%s;t:lights;s:?;", master_buffer ? master_buffer : "g");
 #else
-  length = snprintf(buf, sizeof(buf), "t:lights;g:%03d;s:%s;", MY_GROUP, (button_status ? "1" : "0")) + 1;
+  length = snprintf(buf, sizeof(buf), "t:lights;s:%s;", (button_status ? "1" : "0")) + 1;
 #endif
   MBED_ASSERT(length > 0);
   tr_debug("Sending lightcontrol message, %d bytes: %s", length, buf);
@@ -190,9 +190,6 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
     printf("Unprintable char %c at msg[%d]\n", *c, c-msg);
     return;
   }
-
-  uint8_t state=button_status;
-  // uint16_t group=0xffff;
 
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
   // msg needs to be null terminated (eg. for strchr)
@@ -277,25 +274,13 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
     return;
   }
 
-  if (strstr(cmd, "s:?") != NULL) { // [experimetal, does whis work?]
-    state = (state == 1) ? 0 : 1;   // (or do we need to do something more?)
+  if (strstr(cmd, "s:?") != NULL) {
+    update_state((++state)%2);
   } else if (strstr(cmd, "s:1;") != NULL) {
-    state = 1;
+    update_state(1);
   } else if (strstr(cmd, "s:0;") != NULL) {
-    state = 0;
+    update_state(0);
   }
-
-  // 0==master, 1==default group
-  //char *cmd_ptr = strstr(cmd, "g:");
-  //if (cmd_ptr) {
-  //  char *ptr;
-  //  group = strtol(cmd_ptr, &ptr, 10);
-  //}
-
-  // in this example we only use one group
-  //if (group==MASTER_GROUP || group==MY_GROUP) {
-    update_state(state);
-  //}
 }
 
 static void receive() {
