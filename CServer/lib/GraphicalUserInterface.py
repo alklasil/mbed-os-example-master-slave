@@ -1,25 +1,10 @@
-import kivy
-kivy.require('1.10.0')
+import os
 
-from random import random
-#kivy
 from kivy.config import Config
-Config.set('graphics','width',960)
-Config.set('graphics','height',480)
 from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.button import ButtonBehavior
 from kivy.uix.widget import Widget
-from kivy.uix.popup import Popup
-from kivy.uix.textinput import TextInput
-from kivy.uix.textinput import FocusBehavior
-from kivy.graphics import Color, Line, Rectangle
-from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.gridlayout import GridLayout
+from kivy.graphics import Rectangle
 from kivy.uix.image import Image
-from kivy.input.motionevent import MotionEvent
-import GraphicalNode
 
 
 class MyBackground(Widget):
@@ -55,11 +40,9 @@ class GraphicalUserInterface(App):
 
     def build(self):
         self.root = MyBackground()
-        # this should not be required, cache issue, or what?
-        GraphicalNode.GraphicalNode(source="images/light.gif", center_x=150, center_y=50, node=self)
-        GraphicalNode.GraphicalNode(source="images/button.gif", center_x=150, center_y=50, node=self)
-        GraphicalNode.GraphicalNode(source="images/unknown.gif", center_x=150, center_y=50, node=self)
-        #self.root.add_widget(gnode)
+        for file in os.listdir("images"):
+            if file.endswith(".gif"):
+                Image(source="images/" + file)
         return self.root
 
     def get_root(self):
