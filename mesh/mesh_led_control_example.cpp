@@ -31,6 +31,8 @@ static void blink();
 static void update_state(uint8_t state);
 static void handle_message(char* msg, SocketAddress *source_addr);
 
+// MSG_SIZE = max received(at least for now)/send message size. 
+//this affects the amount of slave_groups and master_groups a node can have
 #define MSG_SIZE 256
 // mesh local multicast to all nodes
 //#define multicast_addr_str "ff15::abba:abba" // -- only other nodes (lights, buttons, etc), no routers and beyond
@@ -72,6 +74,8 @@ char master_slave_buffer[MSG_SIZE] = {0};
 char * master_buffer = NULL, * slave_buffer = NULL;
 // begin advertise with # character, these messages are ignored by normal nodes
 #define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d;", state
+// if ADVERTISE_TO_BACKHAUL_NETWORK_STRING is changed, ADVERTISE_MSG_SIZE also may need to be changed
+#define ADVERTISE_MSG_SIZE 64
 // whether to advertise automatically or not
 bool advertise;
 #endif
@@ -99,7 +103,7 @@ static void advertiseToBackhaulNetwork(){
     return;
   }
 
-  char buf[MSG_SIZE];
+  char buf[(ADVERTISE_MSG_SIZE)];
   int length;
 
   length = snprintf(buf, sizeof(buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
@@ -107,7 +111,7 @@ static void advertiseToBackhaulNetwork(){
   MBED_ASSERT(length > 0);
   tr_debug("Sending advertise message, %d bytes: %s", length, buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
-  my_socket->sendto(send_sockAddr, buf, MSG_SIZE);
+  my_socket->sendto(send_sockAddr, buf, (ADVERTISE_MSG_SIZE));
   //After message is sent, it is received from the network
 }
 
