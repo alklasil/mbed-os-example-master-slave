@@ -29,7 +29,7 @@ def main():
     def remove_outdated_data():
         time.sleep(2)
         #networkInterface.nodelist.update("", "::1", "light", graphicalUserInterface.get_root())
-        networkInterface.nodelist.update("", "2001:0:9d38:6abd:10f4:3b69:ab0f:92a9", "button", graphicalUserInterface.get_root())
+        #networkInterface.nodelist.update("", "2001:0:9d38:6abd:10f4:3b69:ab0f:92a9", "button", graphicalUserInterface.get_root())
         while is_running:
             for i in range(MNI.OUDATE_TIME):
                 if not is_running:

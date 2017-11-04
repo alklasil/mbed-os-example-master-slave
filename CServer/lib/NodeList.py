@@ -19,7 +19,7 @@ class NodeList:
                 print ("node exist")
                 node.set_is_running(True)
                 node.set_timestamp(timestamp)
-                if (node.get_gnode().get_node_mode == "unknown"):
+                if (node.get_gnode().get_node().get_node_mode() == "unknown"):
                     node.get_gnode().set_source("images/" + node_mode + ".gif")
                 _node = node
                 break
