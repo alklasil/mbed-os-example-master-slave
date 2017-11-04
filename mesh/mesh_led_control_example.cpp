@@ -95,19 +95,17 @@ static void messageTimeoutCallback()
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
 static void advertiseToBackhaulNetwork(){
   if (!advertise) {
-    tr_debug("Don't Send advertise to backhaul network");
+    tr_debug("Advertise to backhaul network disabled");
     return;
   }
 
   char buf[MSG_SIZE];
   int length;
 
-  tr_debug("Send advertise to backhaul network [BEGIN]");
-
   length = snprintf(buf, sizeof(buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
 
   MBED_ASSERT(length > 0);
-  tr_debug("Sending lightcontrol message, %d bytes: %s", length, buf);
+  tr_debug("Sending advertise message, %d bytes: %s", length, buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
   my_socket->sendto(send_sockAddr, buf, MSG_SIZE);
   //After message is sent, it is received from the network
