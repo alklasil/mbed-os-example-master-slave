@@ -71,7 +71,7 @@ Ticker advertiseToBackhaulNetworkTicker;
 char master_slave_buffer[MSG_SIZE] = {0};
 char * master_buffer = NULL, * slave_buffer = NULL;
 // begin advertise with # character, these messages are ignored by normal nodes
-#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d", state
+#define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d;", state
 // whether to advertise automatically or not
 bool advertise;
 #endif
@@ -98,16 +98,18 @@ static void advertiseToBackhaulNetwork(){
     tr_debug("Don't Send advertise to backhaul network");
     return;
   }
-  tr_debug("Send advertise to backhaul network");
 
   char buf[MSG_SIZE];
   int length;
 
+  tr_debug("Send advertise to backhaul network [BEGIN]");
+
   length = snprintf(buf, sizeof(buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
+
   MBED_ASSERT(length > 0);
-  tr_debug("Sending advertise to backhaul network");
-  SocketAddress send_sockAddr(multicast_addr, NSAPI_IPv6, UDP_PORT);
-  my_socket->sendto(send_sockAddr, buf, sizeof(buf));
+  tr_debug("Sending lightcontrol message, %d bytes: %s", length, buf);
+  SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
+  my_socket->sendto(send_sockAddr, buf, MSG_SIZE);
   //After message is sent, it is received from the network
 }
 
