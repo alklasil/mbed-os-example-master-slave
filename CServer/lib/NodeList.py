@@ -1,5 +1,5 @@
 import time
-import Node
+from Node import Node
 
 class NodeList:
 
@@ -24,7 +24,7 @@ class NodeList:
                 _node = node
                 break
         if _node is None:
-            _node = Node.Node(timestamp, addr, node_mode, self, gnode_parent)
+            _node = Node(timestamp, addr, node_mode, self, gnode_parent)
             self.nodes.append(_node)
         _node.set_received(data) # FIXME: perhaps only when testing?
 

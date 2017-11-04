@@ -3,8 +3,7 @@ import socket
 import ipaddress
 import struct
 
-import Node
-import NodeList
+from NodeList import NodeList
 
 UDP_IP = 'ff15::ABBA:ABBA'
 UDP_IP_PACKED = ipaddress.ip_address(UDP_IP.decode('unicode-escape')).packed
@@ -15,8 +14,8 @@ IP_LENGTH_USED = 14
 
 class MbedNetworkInterface:
 
-    def __init__(self, testEnvironment):
-        self.nodelist = NodeList.NodeList(self)
+    def __init__(self):
+        self.nodelist = NodeList(self)
 
         addrinfo = socket.getaddrinfo(UDP_IP, None)[0]
 
@@ -31,9 +30,6 @@ class MbedNetworkInterface:
         group_bin = socket.inet_pton(addrinfo[0], addrinfo[4][0])
         mreq = group_bin + struct.pack('@I', 0)
         self.sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
-
-        # set testEnv
-        self.testEnvironment = testEnvironment
 
         print("connected")
 
@@ -68,8 +64,8 @@ class MbedNetworkInterface:
     def get_nodelist(self):
         return self.nodelist
 
-    def get_testEnvironment(self):
-        return self.testEnvironment
+    def get_outdate_time(self):
+        return OUDATE_TIME
 
 def main():
     networkInterface = MbedNetworkInterface()

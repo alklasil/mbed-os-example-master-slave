@@ -6,23 +6,17 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.stacklayout import StackLayout
-import TestEnvironment
 
 class PopupClass(StackLayout, Widget):
     def __init__(self, **kwargs):
         super(PopupClass, self).__init__(**kwargs)
         self.slave = kwargs["slave"]
-        self.backbutton = Button(text = "Back", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, None))
-        self.testbutton = Button(text = "Run diagnosis\n[experimental]", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, None))
-        self.infolabel = Label(text=self.slave.get_node().get_printable("\n"), color=(0.2,0.9,0.2,1), size_hint=(1, 0.4))
+        self.backbutton = Button(text = "Back", background_color=(0.8,0.8,0.8,1), size_hint=(1, None))
+        self.infolabel = Label(text=self.slave.get_node().get_printable(c="\n", parse="everything"), color=(0.2,0.9,0.2,1), size_hint=(1, 0.4))
 
 
         self.add_widget(self.infolabel)
-        self.add_widget(self.testbutton)
         self.add_widget(self.backbutton)
-        def testbutton_pressed(instance):
-            self.slave.get_node().test()
-        self.testbutton.bind(on_press=testbutton_pressed)
 
     def bind(self, bindTo):
         self.backbutton.bind(on_press=bindTo)
