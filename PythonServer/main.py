@@ -14,16 +14,16 @@ def main():
 
     # collect node related data
     def collect_data():
-        print("collect_data-thread UP")
+        print("collect_data thread UP")
         # wait for 2 seconds to make sure gui is up
         time.sleep(2)
         while is_running:
             networkInterface.serve(gnode_parent=graphicalUserInterface.get_root())
-        print("collect_data-thread DOWN")
+        print("collect_data thread DOWN")
 
     # remove outdated data
     def remove_outdated_data():
-        print("remove_outdated_data-thread UP")
+        print("remove_outdated_data thread UP")
         # wait for 2 seconds to make sure gui is up
         time.sleep(2)
         # remove the comment-mark below to create and example node in uithe gui
@@ -35,12 +35,12 @@ def main():
                 time.sleep(1)
             if is_running:
                 networkInterface.get_nodelist().removeOutdated()
-        print("remove_outdated_data-thread DOWN")
+        print("remove_outdated_data thread DOWN")
 
     def gui_main():
-        print("gui_main-thread UP")
+        print("gui_main thread UP")
         graphicalUserInterface.run()
-        print("gui_main-thread DOWN")
+        print("gui_main thread DOWN")
 
 
     # create threads
