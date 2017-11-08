@@ -1,7 +1,11 @@
 import time
-from Node import Node
+from lib.Node import Node
 
 class NodeList:
+    # this class is used to store the nodes in a particular MbedNetworkInterface
+    # this class acts as a bridge between the Nodes and the MbedNetworkInterface
+    #    to which they are "connected" to
+    # list may not be such a great structure in the end, should be easy to change
 
     def __init__(self, networkInterface):
         self.nodes = []
@@ -11,11 +15,15 @@ class NodeList:
         return self.networkInterface
 
     def update(self, data, addr, node_mode, gnode_parent):
+        # when the MbedNetworkInterface receives message
+        # the Nodelist checks whether the from which the message was received is already
+        # a member or not, if not the Node is added, if yes, the Node is updated
         timestamp = int(time.time())
         _node = None
         for node in self.nodes:
             print ("-", addr, "-VS-", node.get_addr(), "-")
             if addr == node.get_addr():
+                # node is already in nodelist -> update
                 print ("node exist")
                 node.set_is_running(True)
                 node.set_timestamp(timestamp)
@@ -24,6 +32,7 @@ class NodeList:
                 _node = node
                 break
         if _node is None:
+            # node did not exist yet -> create new node and add it to the list
             _node = Node(timestamp, addr, node_mode, self, gnode_parent)
             self.nodes.append(_node)
         _node.set_received(data) # FIXME: perhaps only when testing?
@@ -36,26 +45,11 @@ class NodeList:
                 if timestamp - node.get_timestamp() > OUDATE_TIME:
                     node.set_is_running(False)
 
-    def show(self):
-        print self.nodes
-
-    def toList():
-        return ((node.get_addr(), node.get_node_mode()) for node in self.nodes)
-
     def get_nodes():
         return self.nodes
 
     def get_nodes_by_mode(self, mode):
+        # this may be wanted if ordering the nodes based on mode for some reason
         for node in self.nodes:
             if node.get_node_mode() is mode:
-                yield node
-
-    def get_slave_nodes(self):
-        for node in self.nodes:
-            if node.get_is_master():
-                yield node
-
-    def get_master_nodes(self):
-        for node in self.nodes:
-            if node.get_is_slave():
                 yield node
