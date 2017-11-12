@@ -51,6 +51,8 @@ class MbedNetworkInterface:
     def serve(self, gnode_parent):
         data, addr = self.sock.recvfrom(256)
         addr = addr[0]
+        if '\x00' in data:
+            data = data[:data.index('\x00')]
         print("received message:", data)
         print("   sent by:", addr)
 
