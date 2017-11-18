@@ -145,7 +145,7 @@ static void send_message() {
   * t:lights;g:<group_id>;s:<1|0>;\0
   */
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
-  length = snprintf(buf, sizeof(buf), "%s;t:lights;s:?;", master_buffer ? master_buffer : "g");
+  length = snprintf(buf, sizeof(buf), "%st:lights;s:?;", master_buffer ? master_buffer : "g;");
 #else
   length = snprintf(buf, sizeof(buf), "t:lights;s:%s;", (button_status ? "1" : "0")) + 1;
 #endif
