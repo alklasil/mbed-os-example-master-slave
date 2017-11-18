@@ -31,6 +31,8 @@ static void blink();
 static void update_state(uint8_t state);
 static void handle_message(char* msg, SocketAddress *source_addr);
 
+// MSG_SIZE = max received(at least for now)/send message size.
+//this affects the amount of slave_groups and master_groups a node can have
 #define MSG_SIZE 256
 // mesh local multicast to all nodes
 //#define multicast_addr_str "ff15::abba:abba" // -- only other nodes (lights, buttons, etc), no routers and beyond
@@ -72,7 +74,9 @@ char master_slave_buffer[MSG_SIZE] = {0};
 char * master_buffer = NULL, * slave_buffer = NULL;
 // begin advertise with # character, these messages are ignored by normal nodes
 #define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d;", state
-// whether to advertise automatically or not
+// if ADVERTISE_TO_BACKHAUL_NETWORK_STRING is changed, ADVERTISE_MSG_SIZE also may need to be changed
+#define ADVERTISE_MSG_SIZE 64
+// bool advertise tells whether the node is advertising to the backhaul network
 bool advertise;
 #endif
 
@@ -87,19 +91,15 @@ void start_mesh_led_control_example(NetworkInterface * interface){
   init_socket();
 }
 
-static void messageTimeoutCallback()
-{
-  send_message();
-}
+//static void messageTimeoutCallback()
+//{
+//  send_message();
+//}
 
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
 static void advertiseToBackhaulNetwork(){
-  if (!advertise) {
-    tr_debug("Advertise to backhaul network disabled");
-    return;
-  }
 
-  char buf[MSG_SIZE];
+  char buf[(ADVERTISE_MSG_SIZE)];
   int length;
 
   length = snprintf(buf, sizeof(buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
@@ -107,11 +107,12 @@ static void advertiseToBackhaulNetwork(){
   MBED_ASSERT(length > 0);
   tr_debug("Sending advertise message, %d bytes: %s", length, buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
-  my_socket->sendto(send_sockAddr, buf, MSG_SIZE);
+  my_socket->sendto(send_sockAddr, buf, length);
   //After message is sent, it is received from the network
 }
 
 void start_advertisingToBackhaulNetwork(){
+  tr_debug("Advertise to backhaul network enabled by default");
   advertise = true;
   advertiseToBackhaulNetworkTicker.attach(advertiseToBackhaulNetwork, ADVERTISE_TO_BACKHAUL_NETWORK_WAIT_TIME);
 }
@@ -144,14 +145,14 @@ static void send_message() {
   * t:lights;g:<group_id>;s:<1|0>;\0
   */
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
-  length = snprintf(buf, sizeof(buf), "%s;t:lights;s:?;", master_buffer ? master_buffer : "g");
+  length = snprintf(buf, sizeof(buf), "%st:lights;s:?;", master_buffer ? master_buffer : "g;");
 #else
   length = snprintf(buf, sizeof(buf), "t:lights;s:%s;", (button_status ? "1" : "0")) + 1;
 #endif
   MBED_ASSERT(length > 0);
   tr_debug("Sending lightcontrol message, %d bytes: %s", length, buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
-  my_socket->sendto(send_sockAddr, buf, MSG_SIZE);
+  my_socket->sendto(send_sockAddr, buf, length);
   //After message is sent, it is received from the network
 }
 
@@ -181,9 +182,14 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
 
   tr_debug("handle_message: %s", msg);
 
-  if (msg[0] == '#') return;    // for control messages and so on, yes there are better ways to handle this but i aint got the time for implementing such
+  // if the node receives #advertise message or other message which it's not supposed to process
+  // the node can return from the function
+  if (msg[0] == '#') return;
 
-  // check if the message contains Unprintable char(s)
+  // if the message contains Unprintable char(s), return.
+  // Unprintable char(s) apparently cause the node to stall if the node tries sending them.
+  // As the node may send the master_buffer at times (master_buffer might otherwise containt Unprintable char(s)),
+  // we do not accept such char(s) at the moment here, at all.
   char * c = msg;
   while (isprint(*(c++))) ;
   if (*(--c) != '\0') {
@@ -214,10 +220,22 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
     return;
   } else if (strncmp(msg, "advertise;", strlen("advertise;")) == 0) {
     if (strstr(msg, "s:1;") != NULL) {
-      advertise = 1;
+      if (!advertise) {
+        tr_debug("Advertise to backhaul network enabled");
+        advertise = true;
+        advertiseToBackhaulNetworkTicker.attach(advertiseToBackhaulNetwork, ADVERTISE_TO_BACKHAUL_NETWORK_WAIT_TIME);
+      } else {
+        tr_debug("Advertise to backhaul network enabled (was already)");
+      }
       return;
     } else if (strstr(msg, "s:0;") != NULL) {
-      advertise = 0;
+      if (advertise) {
+        tr_debug("Advertise to backhaul network disabled");
+        advertise = false;
+        advertiseToBackhaulNetworkTicker.detach();
+      } else {
+        tr_debug("Advertise to backhaul network disabled (was already)");
+      }
       return;
     } else {
       // force advertise
@@ -241,13 +259,13 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   // separate command from the groups
   *cmd = '\0';
   cmd++;
-  // if msg contains no command, simply return (for now)
+  // if msg contains no command, simply return (feel free to edit the behaviour)
   if (cmd[0] == ';') return;
 
   bool is_slave = false;
   char * cmd_slave_next = cmd_slave;
-  // check if we obey the slave_group to where the sender send the message
-  // (ie., the sender sends messages to slave group to which we belong)
+  // check if we obey the slave_group to where the sender sent the message
+  // (i.e., the sender sent the messages to a group (it's master_group) which is our slave_group)
   do {
     cmd_slave_next = strchr(cmd_slave, ',');
     if (cmd_slave_next != NULL) cmd_slave_next[0] = '\0';
@@ -275,7 +293,9 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   }
 
   if (strstr(cmd, "s:?") != NULL) {
-    update_state((++state)%2);
+    if (state != 0) state = 0;
+    else state = 1;
+    update_state(state);
   } else if (strstr(cmd, "s:1;") != NULL) {
     update_state(1);
   } else if (strstr(cmd, "s:0;") != NULL) {
@@ -292,7 +312,7 @@ static void receive() {
   while (something_in_socket) {
     int length = my_socket->recvfrom(&source_addr, receive_buffer, sizeof(receive_buffer) - 1);
     if (length > 0) {
-      int timeout_value = MESSAGE_WAIT_TIMEOUT;
+      //int timeout_value = MESSAGE_WAIT_TIMEOUT;
       tr_debug("Packet from %s\n", source_addr.get_ip_address());
       //timeout_value += rand() % 30;
       //tr_debug("Advertisiment after %d seconds", timeout_value);
