@@ -31,7 +31,7 @@ static void blink();
 static void update_state(uint8_t state);
 static void handle_message(char* msg, SocketAddress *source_addr);
 
-// MSG_SIZE = max received(at least for now)/send message size. 
+// MSG_SIZE = max received(at least for now)/send message size.
 //this affects the amount of slave_groups and master_groups a node can have
 #define MSG_SIZE 256
 // mesh local multicast to all nodes
@@ -111,7 +111,7 @@ static void advertiseToBackhaulNetwork(){
   MBED_ASSERT(length > 0);
   tr_debug("Sending advertise message, %d bytes: %s", length, buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
-  my_socket->sendto(send_sockAddr, buf, (ADVERTISE_MSG_SIZE));
+  my_socket->sendto(send_sockAddr, buf, length);
   //After message is sent, it is received from the network
 }
 
@@ -155,7 +155,7 @@ static void send_message() {
   MBED_ASSERT(length > 0);
   tr_debug("Sending lightcontrol message, %d bytes: %s", length, buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
-  my_socket->sendto(send_sockAddr, buf, MSG_SIZE);
+  my_socket->sendto(send_sockAddr, buf, length);
   //After message is sent, it is received from the network
 }
 
