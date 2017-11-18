@@ -9,7 +9,7 @@
             "value": "MESH_LOWPAN"
         },
         "enable-led-control-example": true,
-		"enable-master-slave-control-example": true,
+        "enable-master-slave-control-example": true,
         "LED": "NC",
         "BUTTON": "NC"
     },

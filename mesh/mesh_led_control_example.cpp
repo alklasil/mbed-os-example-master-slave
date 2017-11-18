@@ -91,10 +91,10 @@ void start_mesh_led_control_example(NetworkInterface * interface){
   init_socket();
 }
 
-static void messageTimeoutCallback()
-{
-  send_message();
-}
+//static void messageTimeoutCallback()
+//{
+//  send_message();
+//}
 
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
 static void advertiseToBackhaulNetwork(){
@@ -312,7 +312,7 @@ static void receive() {
   while (something_in_socket) {
     int length = my_socket->recvfrom(&source_addr, receive_buffer, sizeof(receive_buffer) - 1);
     if (length > 0) {
-      int timeout_value = MESSAGE_WAIT_TIMEOUT;
+      //int timeout_value = MESSAGE_WAIT_TIMEOUT;
       tr_debug("Packet from %s\n", source_addr.get_ip_address());
       //timeout_value += rand() % 30;
       //tr_debug("Advertisiment after %d seconds", timeout_value);
