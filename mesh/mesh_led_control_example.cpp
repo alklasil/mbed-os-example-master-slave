@@ -76,7 +76,7 @@ char * master_buffer = NULL, * slave_buffer = NULL;
 #define ADVERTISE_TO_BACKHAUL_NETWORK_STRING "#advertise:button;s:%d;", state
 // if ADVERTISE_TO_BACKHAUL_NETWORK_STRING is changed, ADVERTISE_MSG_SIZE also may need to be changed
 #define ADVERTISE_MSG_SIZE 64
-// whether to advertise automatically or not
+// bool advertise tells whether the node is advertising to the backhaul network
 bool advertise;
 #endif
 
@@ -98,10 +98,6 @@ static void messageTimeoutCallback()
 
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
 static void advertiseToBackhaulNetwork(){
-  if (!advertise) {
-    tr_debug("Advertise to backhaul network disabled");
-    return;
-  }
 
   char buf[(ADVERTISE_MSG_SIZE)];
   int length;
@@ -116,6 +112,7 @@ static void advertiseToBackhaulNetwork(){
 }
 
 void start_advertisingToBackhaulNetwork(){
+  tr_debug("Advertise to backhaul network enabled by default");
   advertise = true;
   advertiseToBackhaulNetworkTicker.attach(advertiseToBackhaulNetwork, ADVERTISE_TO_BACKHAUL_NETWORK_WAIT_TIME);
 }
@@ -184,7 +181,7 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   // Check if this is lights message
 
   tr_debug("handle_message: %s", msg);
-  
+
   // if the node receives #advertise message or other message which it's not supposed to process
   // the node can return from the function
   if (msg[0] == '#') return;
@@ -223,10 +220,22 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
     return;
   } else if (strncmp(msg, "advertise;", strlen("advertise;")) == 0) {
     if (strstr(msg, "s:1;") != NULL) {
-      advertise = 1;
+      if (!advertise) {
+        tr_debug("Advertise to backhaul network enabled");
+        advertise = true;
+        advertiseToBackhaulNetworkTicker.attach(advertiseToBackhaulNetwork, ADVERTISE_TO_BACKHAUL_NETWORK_WAIT_TIME);
+      } else {
+        tr_debug("Advertise to backhaul network enabled (was already)");
+      }
       return;
     } else if (strstr(msg, "s:0;") != NULL) {
-      advertise = 0;
+      if (advertise) {
+        tr_debug("Advertise to backhaul network disabled");
+        advertise = false;
+        advertiseToBackhaulNetworkTicker.detach();
+      } else {
+        tr_debug("Advertise to backhaul network disabled (was already)");
+      }
       return;
     } else {
       // force advertise
