@@ -293,7 +293,9 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   }
 
   if (strstr(cmd, "s:?") != NULL) {
-    update_state((++state)%2);
+    if (state != 0) state = 0;
+    else state = 1;
+    update_state(state);
   } else if (strstr(cmd, "s:1;") != NULL) {
     update_state(1);
   } else if (strstr(cmd, "s:0;") != NULL) {
