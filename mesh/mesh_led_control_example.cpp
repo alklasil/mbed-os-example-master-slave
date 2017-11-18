@@ -184,10 +184,15 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   // Check if this is lights message
 
   tr_debug("handle_message: %s", msg);
+  
+  // if the node receives #advertise message or other message which it's not supposed to process
+  // the node can return from the function
+  if (msg[0] == '#') return;
 
-  if (msg[0] == '#') return;    // for control messages and so on, yes there are better ways to handle this but i aint got the time for implementing such
-
-  // check if the message contains Unprintable char(s)
+  // if the message contains Unprintable char(s), return.
+  // Unprintable char(s) apparently cause the node to stall if the node tries sending them.
+  // As the node may send the master_buffer at times (master_buffer might otherwise containt Unprintable char(s)),
+  // we do not accept such char(s) at the moment here, at all.
   char * c = msg;
   while (isprint(*(c++))) ;
   if (*(--c) != '\0') {
@@ -245,13 +250,13 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
   // separate command from the groups
   *cmd = '\0';
   cmd++;
-  // if msg contains no command, simply return (for now)
+  // if msg contains no command, simply return (feel free to edit the behaviour)
   if (cmd[0] == ';') return;
 
   bool is_slave = false;
   char * cmd_slave_next = cmd_slave;
-  // check if we obey the slave_group to where the sender send the message
-  // (ie., the sender sends messages to slave group to which we belong)
+  // check if we obey the slave_group to where the sender sent the message
+  // (i.e., the sender sent the messages to a group (it's master_group) which is our slave_group)
   do {
     cmd_slave_next = strchr(cmd_slave, ',');
     if (cmd_slave_next != NULL) cmd_slave_next[0] = '\0';

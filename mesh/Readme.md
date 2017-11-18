@@ -1,9 +1,20 @@
 Usage (at the moment):
-  * follow instructions in the following page: https://github.com/ARMmbed/mbed-os-example-mesh-minimal
-  * when the mbed-os-example-mesh-minimal is working:
-    * copy and paste the files in the mbed-os-example-mesh-minimal repo into this folder (do not replace the existing files, only copy the files that do not already exist) <or act otherwise more or less similarly>
+  * This project is based on the "Example mesh application for mbed OS" (https://github.com/ARMmbed/mbed-os-example-mesh-minimal)
+  * This folder contains the modified versions of the files used in the above project.
   
 **message format:**
+
+The node deals with 3 different kinds of messages:
+  * (1) messages that the nodes do not need to care about (such as advertise to the backhaul network)
+  * (2) control messages (such as light control messages)
+    * when a node receives a control message, it checks whether the sender is its master
+    * if the sender is a master, the receiver acts according to the control message, otherwise the receiver ignores the control message
+  * (3) configuration messages (such as setting master_buffer and slave_buffer):
+    * when a node receives this kind of message, it configures itself according to the instructions
+    * (at the moment any single node can configure any single node (or all nodes) without requiring authentication [at least at the moment])
+    * for now the UI uses these messages to configure the nodes to listen/send to only certain nodes (certain groups).
+  
+**More information and examples**
 
 * Advertise: "#advertise:mode;s:%d;", state
   * for example: "#advertise:button;s:%d;", state
