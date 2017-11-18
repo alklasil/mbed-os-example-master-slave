@@ -27,8 +27,11 @@ class NodeList:
                 print ("node exist")
                 node.set_is_running(True)
                 node.set_timestamp(timestamp)
-                if (node.get_gnode().get_node().get_node_mode() == "unknown"):
+                # for now only change node_mode once from unknown to something else
+                # if node could change its mode (in the future perhaps), edit this
+                if node.get_node_mode() == "unknown":
                     node.get_gnode().set_source("images/" + node_mode + ".gif")
+                    node.set_node_mode(node_mode)
                 _node = node
                 break
         if _node is None:
@@ -40,10 +43,11 @@ class NodeList:
     def removeOutdated(self):
         # remove outdated nodes
         timestamp = int(time.time())
-        for idx, node in self.nodes:
-            if node.is_running:
-                if timestamp - node.get_timestamp() > OUDATE_TIME:
-                    node.set_is_running(False)
+        if self.nodes:
+            for node in self.nodes:
+                if node.is_running:
+                    if timestamp - node.get_timestamp() > self.networkInterface.get_outdate_time():
+                        node.set_is_running(False)
 
     def get_nodes():
         return self.nodes

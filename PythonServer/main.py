@@ -27,7 +27,7 @@ def main():
         # wait for 2 seconds to make sure gui is up
         time.sleep(2)
         # remove the comment-mark below to create and example node in uithe gui
-        networkInterface.nodelist.update("", "2001:0:9d38:1111:0000:3b69:ab0f:92a9", "button", graphicalUserInterface.get_root())
+        # networkInterface.nodelist.update("", "ff15::ABBA:ABBA", "button", graphicalUserInterface.get_root())
         while is_running:
             for i in range(networkInterface.get_outdate_time()):
                 if not is_running:

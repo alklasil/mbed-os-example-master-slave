@@ -11,7 +11,7 @@ class Node:
         self.node_mode = node_mode
         self.is_running = True
         self.nodelist = nodelist
-        self.conf = "conf;g;g"
+        self.conf = "conf;g;g;"
 
         # Add GraphicalNode if gnode_parent (GraphicalUserInterface.root) exists
         if not gnode_parent is None:
@@ -44,6 +44,9 @@ class Node:
     def get_node_mode(self):
         return self.node_mode
 
+    def set_node_mode(self, node_mode):
+        self.node_mode = node_mode
+
     def set_is_running(self, is_running):
         # if is_running is False, the node may or may not be running, but we do
         # not know whether it is running.
@@ -57,7 +60,7 @@ class Node:
     def get_conf(self):
         return self.conf
 
-    def set_conf(self, conf="conf;g;g"):
+    def set_conf(self, conf="conf;g;g;"):
         self.conf = conf
 
     def send(self, msg=None, addr=None):
@@ -92,3 +95,9 @@ class Node:
 
     def get_received(self):
         return self.received
+
+    def save(self):
+        pass
+
+    def load(self):
+        pass

@@ -51,12 +51,13 @@ class MbedNetworkInterface:
     def serve(self, gnode_parent):
         data, addr = self.sock.recvfrom(256)
         addr = addr[0]
-        if '\x00' in data:
-            data = data[:data.index('\x00')]
+        #print("raw data:", data)
+        #if '\x00' in data:
+        #    data = data[:data.index('\x00')]
         print("received message:", data)
         print("   sent by:", addr)
 
-        if "#advertise:" in data:
+        if data.startswith('#advertise:'):
             node_mode = data[len("#advertise:"):data.index(';')]
             node_state = 1 if "s:1;" in data else 0 # add this to nodes attrs when adding visual
             self.nodelist.update(data, addr, node_mode, gnode_parent)

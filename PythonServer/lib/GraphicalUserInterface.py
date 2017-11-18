@@ -15,7 +15,6 @@ class MyBackground(Widget):
         super(MyBackground, self).__init__(**kwargs)
         with self.canvas:
             self.bg = Rectangle(source='images/project.gif', pos=self.pos, size=self.size)
-            #self.add_widget(TextInput(text="HELLO WORLD", focus=True))
 
         self.bind(pos=self.update_bg)
         self.bind(size=self.update_bg)

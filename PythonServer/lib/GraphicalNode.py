@@ -6,16 +6,47 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.stacklayout import StackLayout
+from kivy.clock import Clock
 
 # popup class, shown when "more" clicked in the node in gui
 class PopupClass(StackLayout, Widget):
     def __init__(self, **kwargs):
         super(PopupClass, self).__init__(**kwargs)
         self.slave = kwargs["slave"]
-        self.backbutton = Button(text = "Back", background_color=(0.8,0.8,0.8,1), size_hint=(1, None))
         self.infolabel = Label(text=self.slave.get_node().get_printable(c="\n", parse="everything"), color=(0.2,0.9,0.2,1), size_hint=(1, 0.4))
+        self.backbutton = Button(text = "Back", background_color=(0.8,0.8,0.8,1), size_hint=(1, None))
+        self.advertise_button = Button(text = "Force advertise", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, None))
+        self.advertise1_button = Button(text = "Enable advertise", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, None))
+        self.advertise0_button = Button(text = "Disable advertise", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, None))
+        self.send_message_button = Button(text = "Force send_message", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, None))
+
         self.add_widget(self.infolabel)
         self.add_widget(self.backbutton)
+        self.add_widget(self.advertise_button)
+        self.add_widget(self.send_message_button)
+        self.add_widget(self.advertise1_button)
+        self.add_widget(self.advertise0_button)
+
+        self.infolabel_update_timestamp = self.slave.get_node().get_timestamp()
+        def infolabel_update(_):
+            if self.infolabel_update_timestamp != self.slave.get_node().get_timestamp():
+                self.infolabel_update_timestamp = self.slave.get_node().get_timestamp()
+                self.infolabel.text=self.slave.get_node().get_printable(c="\n", parse="everything")
+        Clock.schedule_interval(infolabel_update, 1)
+
+        def advertise_button_pressed(instance):
+            self.slave.get_node().send(msg="advertise;")
+        def advertise1_button_pressed(instance):
+            self.slave.get_node().send(msg="advertise;s:1;")
+        def advertise0_button_pressed(instance):
+            self.slave.get_node().send(msg="advertise;s:0;")
+        def send_message_button_pressed(instance):
+            self.slave.get_node().send(msg="send_message;")
+
+        self.advertise_button.bind(on_press=advertise_button_pressed)
+        self.advertise1_button.bind(on_press=advertise1_button_pressed)
+        self.advertise0_button.bind(on_press=advertise0_button_pressed)
+        self.send_message_button.bind(on_press=send_message_button_pressed)
 
     def bind(self, bindTo):
         # used to bind the backbutton to close the popup when pressed
@@ -29,7 +60,7 @@ class ContentClass(GridLayout, Widget):
         self.slave = kwargs["slave"]
 
         self.sendbutton = Button(text = "Send", background_color=(0.8,0.8,0.8,0.7))
-        self.textinput = TextInput(text="conf;g;g", background_color=(0.8,0.8,0.8,0.7), multiline=False)
+        self.textinput = TextInput(text=self.slave.get_node().get_conf(), background_color=(0.8,0.8,0.8,0.7), multiline=False)
         self.morebutton = Button(text = "more", background_color=(0.8,0.8,0.8,0.7))
         self.nodemover = NodeMover(slave=self.slave, background_color=(0.8,0.8,0.8,0.5), size_hint_y=None, height=0)
 
@@ -39,14 +70,14 @@ class ContentClass(GridLayout, Widget):
         self.add_widget(self.nodemover)
 
         def on_focus(instance, value):
-            # when the textinput loses focus, set the nodes conf_message, as it may have been modified
+            # when the textinput loses focus, set the nodes conf_message (if begins with conf;), as it may have been modified
             if not value:
-                self.slave.get_node().set_conf(self.get_text())
+                if self.get_text().startswith('conf;'):
+                    self.slave.get_node().set_conf(self.get_text())
         self.textinput.bind(focus=on_focus)
 
         def sendbutton_pressed(instance):
             # when send button pressed, send the node a message
-            self.slave.get_node().set_conf(self.get_text()) #can be removed?
             self.slave.get_node().send()
         self.sendbutton.bind(on_press=sendbutton_pressed)
 
@@ -141,5 +172,5 @@ class GraphicalNode(GridLayout, Image, Widget):
 
     def get_parent(self):
         # return the parent of the node. all nodes have the same parent.
-        # the parent is the object the node is added as a widget to 
+        # the parent is the object the node is added as a widget to
         return self.parent
