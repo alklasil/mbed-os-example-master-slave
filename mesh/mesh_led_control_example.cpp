@@ -78,7 +78,11 @@ char * master_buffer = NULL, * slave_buffer = NULL;
 #define ADVERTISE_MSG_SIZE 64
 // bool advertise tells whether the node is advertising to the backhaul network
 bool advertise;
+char advertise_buf[(ADVERTISE_MSG_SIZE)];
 #endif
+
+char buf[MSG_SIZE];
+int buf_length;
 
 void start_mesh_led_control_example(NetworkInterface * interface){
   tr_debug("start_mesh_led_control_example()");
@@ -99,15 +103,14 @@ void start_mesh_led_control_example(NetworkInterface * interface){
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
 static void advertiseToBackhaulNetwork(){
 
-  char buf[(ADVERTISE_MSG_SIZE)];
   int length;
 
-  length = snprintf(buf, sizeof(buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
+  length = snprintf(advertise_buf, sizeof(advertise_buf), ADVERTISE_TO_BACKHAUL_NETWORK_STRING);
 
   MBED_ASSERT(length > 0);
-  tr_debug("Sending advertise message, %d bytes: %s", length, buf);
+  tr_debug("Sending advertise message, %d bytes: %s", length, advertise_buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
-  my_socket->sendto(send_sockAddr, buf, length);
+  my_socket->sendto(send_sockAddr, advertise_buf, length);
   //After message is sent, it is received from the network
 }
 
@@ -132,10 +135,6 @@ void cancel_blinking() {
 }
 
 static void send_message() {
-  tr_debug("send msg %d", button_status);
-
-  char buf[MSG_SIZE];
-  int length;
 
   /**
   * Multicast control message is a NUL terminated string of semicolon separated
@@ -144,21 +143,25 @@ static void send_message() {
   * Light control message format:
   * t:lights;g:<group_id>;s:<1|0>;\0
   */
+
+  int length = buf_length;
+  if (length <= 0) {
 #if MBED_CONF_APP_ENABLE_MASTER_SLAVE_CONTROL_EXAMPLE
-  length = snprintf(buf, sizeof(buf), "%st:lights;s:?;", master_buffer ? master_buffer : "g;");
+    length = snprintf(buf, sizeof(buf), "%st:lights;s:?;", master_buffer ? master_buffer : "g;");
 #else
-  length = snprintf(buf, sizeof(buf), "t:lights;s:%s;", (button_status ? "1" : "0")) + 1;
+    length = snprintf(buf, sizeof(buf), "t:lights;s:%s;", (button_status ? "1" : "0"));
 #endif
+  }
   MBED_ASSERT(length > 0);
   tr_debug("Sending lightcontrol message, %d bytes: %s", length, buf);
   SocketAddress send_sockAddr(multi_cast_addr, NSAPI_IPv6, UDP_PORT);
   my_socket->sendto(send_sockAddr, buf, length);
-  //After message is sent, it is received from the network
 }
 
 // As this comes from isr, we cannot use printing or network functions directly from here.
 static void my_button_isr() {
   button_status = !button_status;
+  buf_length = 0;
   queue.call(send_message);
 }
 
@@ -244,7 +247,8 @@ static void handle_message(char* msg, SocketAddress *source_addr = NULL) {
     }
   } else if (strncmp(msg, "send_message;", strlen("send_message;")) == 0) {
     // force send_message (can virtualize light to work as button) [experimental]
-    send_message();
+    buf_length = snprintf(buf, sizeof(buf), &msg[strlen("send_message;")]);
+    queue.call(send_message);
     return;
   }
 
