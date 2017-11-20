@@ -1,6 +1,5 @@
 import os
 
-from kivy.config import Config
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle
@@ -30,7 +29,7 @@ class MyBackground(Widget):
         self.bg.pos = self.pos
         self.bg.size = self.size
 
-    def save(self):
+    def save(self, nodelist):
         # save the state (TODO)
         pass
 
@@ -47,11 +46,13 @@ class GraphicalUserInterface(App):
     def build(self):
         # too is used as the parent too all nodes in the hierarchy
         # the naming can be modified if better comes in to mind
+
         self.root = MyBackground()
         # cache all images, does not seem to work otherwise at the moment
         for file in os.listdir("images"):
             if file.endswith(".gif"):
                 Image(source="images/" + file)
+
         return self.root
 
     def get_root(self):

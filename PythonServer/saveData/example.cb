@@ -1,0 +1,15 @@
+button|ip1|conf;g1;g;|500.0:50.0
+button|ip2|conf;g;g1;|500.0:150.0
+button|ip3|conf;g2;g;|500.0:250.0
+button|ip4|conf;g;g2;|500.0:350.0
+button|ip5|conf;g3;g;|500.0:450.0
+button|ip6|conf;g;g3;|400.0:50.0
+light|ip7|conf;g4;g;|300.0:550.0
+light|ip8|conf;g;g4;|200.0:50.0
+light|ip9|conf;g5;g;|100.0:450.0
+light|ip10|conf;g;g5;|600.0:50.0
+light|ip11|conf;g6;g;|700.0:250.0
+light|ip12|conf;g;g6;|800.0:150.0
+unknown|ip10|conf;g7;g;|600.0:50.0
+unknown|ip11|conf;g;g7;|700.0:250.0
+unknown|ip12|conf;g8;g;|800.0:150.0

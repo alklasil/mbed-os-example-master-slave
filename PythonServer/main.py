@@ -26,8 +26,20 @@ def main():
         print("remove_outdated_data thread UP")
         # wait for 2 seconds to make sure gui is up
         time.sleep(2)
-        # remove the comment-mark below to create and example node in uithe gui
-        # networkInterface.nodelist.update("", "ff15::ABBA:ABBA", "button", graphicalUserInterface.get_root())
+        # DummyNode, you can comment this out
+        #   (though then there is currently no way to force advertise in that case)
+        #   (maybe in future with better menus,  this could be modified)
+        #   (if you do not want the DummyNode to be on screen, just)
+        #   (grap it and move out of the window)
+
+        networkInterface.nodelist.update(
+            "Most recently received message is shown here",
+            "Ip slot (IPV6 supported)",
+            "DummyNode",
+            graphicalUserInterface.get_root(),
+            "See readme.md for instructions on message format"
+        )
+
         while is_running:
             for i in range(networkInterface.get_outdate_time()):
                 if not is_running:

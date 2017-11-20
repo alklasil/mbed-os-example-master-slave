@@ -16,7 +16,7 @@ class Node:
         # Add GraphicalNode if gnode_parent (GraphicalUserInterface.root) exists
         if not gnode_parent is None:
             # create GraphicalNode and set node=self (-> GraphicalNode contains link to this node)
-            self.gnode = GraphicalNode(color=(1,1,1,0.8), source="images/" + node_mode + ".gif", center_x=50, center_y=50, node=self)
+            self.gnode = GraphicalNode(color=(1,1,1,0.8), source="images/" + node_mode + ".gif", center_x=500, center_y=50, node=self)
             gnode_parent.add_widget(self.gnode)
 
     def get_nodelist(self):
@@ -62,6 +62,7 @@ class Node:
 
     def set_conf(self, conf="conf;g;g;"):
         self.conf = conf
+        self.gnode.get_content().set_text(self.conf)
 
     def send(self, msg=None, addr=None):
         # send message to the physical node. default message is the conf message
@@ -71,24 +72,29 @@ class Node:
         if addr is None: addr = self.addr
         self.get_nodelist().get_networkInterface().sendMessage(msg=msg, addr=self.get_addr())
 
-    def get_printable(self, c="; ", parse="essential"):
+    def get_printable(self, c="; ", parse="essential", titles=True):
+
+        if titles:
+            t = 1
+        else:
+            t = 0
+
         if parse == "essential":
             return (
-                  "mode: " + self.get_node_mode() + c
-                + "addr: " + self.get_addr() + c
-                + "conf: " + self.get_conf()
+                  t * "mode: "  + self.get_node_mode() + c
+                + t * "addr: " + self.get_addr() + c
+                + t * "conf: " + self.get_conf() + c
+                + t * "center: " + str(self.gnode.center_x) + ":" + str(self.gnode.center_y)
             )
         elif parse == "everything":
             return (
-                  "mode: " + self.get_node_mode() + c
-                + "addr: " + self.get_addr() + c
-                + "conf: " + self.get_conf() + c
-                + "timestamp: " + str(self.timestamp) + c
-                + "is_running: " + str(self.is_running) + c
-                + "last received: " + self.received
+                  self.get_printable(c, "essential", titles) + c
+                + t * "timestamp: " + str(self.timestamp) + c
+                + t * "is_running: " + str(self.is_running) + c
+                + t * "last received: " + self.received
             )
         else:
-            return "mode: " + self.get_node_mode()
+            return t * "mode: " + self.get_node_mode()
 
     def set_received(self, received):
         self.received = received
