@@ -25,6 +25,7 @@ class PopupClass(StackLayout, Widget):
         self.advertise0_button = Button(text = "Disable advertise", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, 0.1))
         self.send_message_button = Button(text = "Force send_message", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, 0.1))
         self.update_from_clipboard_button = Button(text = "Update from clipboard", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, 0.1))
+        self.configure_button = Button(text = "Configure", background_color=(0.8,0.8,0.8,1), size_hint=(0.5, 0.1))
 
         self.add_widget(self.infolabel)
         self.add_widget(self.backbutton)
@@ -35,6 +36,7 @@ class PopupClass(StackLayout, Widget):
         self.add_widget(self.advertise1_button)
         self.add_widget(self.advertise0_button)
         self.add_widget(self.update_from_clipboard_button)
+        self.add_widget(self.configure_button)
 
         self.infolabel_update_timestamp = self.slave.get_node().get_timestamp()
         def infolabel_update(_):
@@ -84,6 +86,12 @@ class PopupClass(StackLayout, Widget):
                 gnode_parent = self.slave.get_parent()
             )
 
+        def configure_button_pressed(instance):
+            if self.selected_nodes == "this":
+                self.slave.get_node().send()
+            else:
+                for node in self.slave.get_node().get_nodelist().get_nodes():
+                    node.send()
 
         self.this_node_button.bind(on_press=this_node_button_pressed)
         self.all_nodes_button.bind(on_press=all_nodes_button_pressed)
@@ -93,7 +101,7 @@ class PopupClass(StackLayout, Widget):
         self.send_message_button.bind(on_press=send_message_button_pressed)
         self.infolabel.bind(on_touch_down=infolabel_on_touch_down)
         self.update_from_clipboard_button.bind(on_press=update_from_clipboard_button_pressed)
-
+        self.configure_button.bind(on_press=configure_button_pressed)
 
     def bind(self, bindTo):
         # used to bind the backbutton to close the popup when pressed
