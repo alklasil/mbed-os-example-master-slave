@@ -6,6 +6,8 @@ import time
 from lib.MbedNetworkInterface import MbedNetworkInterface
 from lib.GraphicalUserInterface import GraphicalUserInterface
 
+from kivy.core.clipboard import Clipboard
+
 def main():
     threads = []
     is_running = True
@@ -32,13 +34,21 @@ def main():
         #   (if you do not want the DummyNode to be on screen, just)
         #   (grap it and move out of the window)
 
-        networkInterface.nodelist.update(
-            "Most recently received message is shown here",
-            "Ip slot (IPV6 supported)",
-            "DummyNode",
-            graphicalUserInterface.get_root(),
-            "See readme.md for instructions on message format"
+        #networkInterface.nodelist.update(
+        #    "Most recently received message is shown here",
+        #    "Ip slot (IPV6 supported)",
+        #    "DummyNode",
+        #    graphicalUserInterface.get_root(),
+        #    "See readme.md for instructions on message format"
+        #)
+
+        networkInterface.get_nodelist().update_from_text(
+            node = None,
+            text = Clipboard.paste(),
+            selected_nodes = "all",
+            gnode_parent=graphicalUserInterface.get_root()
         )
+
 
         while is_running:
             for i in range(networkInterface.get_outdate_time()):

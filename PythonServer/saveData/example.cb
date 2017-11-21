@@ -1,3 +1,4 @@
+**PythonServer Clipboard**
 button|ip1|conf;g1;g;|500.0:50.0
 button|ip2|conf;g;g1;|500.0:150.0
 button|ip3|conf;g2;g;|500.0:250.0
