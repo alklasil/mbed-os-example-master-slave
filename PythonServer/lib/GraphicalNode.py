@@ -65,9 +65,11 @@ class PopupClass(StackLayout, Widget):
             self.slave.get_node().send(msg=pre_msg() + "send_message;")
         def infolabel_on_touch_down(instance, touch):
             if self.selected_nodes == "this":
-                Clipboard.copy(self.slave.get_node().get_printable(c="|", parse="essential", titles=False))
+                text = "**PythonServer Clipboard**" + "\n"
+                text = text + self.slave.get_node().get_printable(c="|", parse="essential", titles=False)
+                Clipboard.copy(text)
             else:
-                text = ""
+                text = "**PythonServer Clipboard**" + "\n"
                 for node in self.slave.get_node().get_nodelist().get_nodes():
                     if node.get_node_mode() != "DummyNode":
                         text = text + node.get_printable(c="|", parse="essential", titles=False)
@@ -75,37 +77,12 @@ class PopupClass(StackLayout, Widget):
                 Clipboard.copy(text)
 
         def update_from_clipboard_button_pressed(instance):
-            text = Clipboard.paste()
-            lines = ""
-            data = ""
-            try:
-                lines = text.splitlines()
-                data = [line.split('|') for line in lines]
-
-                # mode|addr|conf
-                # mode|addr|conf
-                # ...
-                if self.selected_nodes == "this":
-                    for mode, addr, conf, center in data:
-                        if addr == self.slave.get_node().get_addr():
-                            _node = self.slave.get_node().get_nodelist().update(
-                                "#advertise:(update from clipboard)", addr, mode, self.slave.get_parent(), conf
-                            )
-                            center_x, center_y = center.split(":")
-                            _node.get_gnode().center_x = float(center_x)
-                            _node.get_gnode().center_y = float(center_y)
-                else:
-                    for mode, addr, conf, center in data:
-                        _node = self.slave.get_node().get_nodelist().update(
-                            "#advertise:(update from clipboard)", addr, mode, self.slave.get_parent(), conf
-                        )
-                        center_x, center_y = center.split(":")
-                        _node.get_gnode().center_x = float(center_x)
-                        _node.get_gnode().center_y = float(center_y)
-
-            except:
-                print "error happened (data illformatted)"
-                print text
+            self.slave.get_node().get_nodelist().update_from_text(
+                node = self.slave.get_node(),
+                text = Clipboard.paste(),
+                selected_nodes = self.selected_nodes,
+                gnode_parent = self.slave.get_parent()
+            )
 
 
         self.this_node_button.bind(on_press=this_node_button_pressed)

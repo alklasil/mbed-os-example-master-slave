@@ -49,6 +49,40 @@ class NodeList:
             _node.set_conf(conf)
         return _node
 
+    def update_from_text(self, node, text, selected_nodes, gnode_parent):
+        try:
+            lines = text.splitlines()
+            if lines[0] == '**PythonServer Clipboard**':
+                lines = lines[1:]
+                data = [line.split('|') for line in lines]
+
+                # mode|addr|conf
+                # mode|addr|conf
+                # ...
+                if selected_nodes == "this":
+                    for mode, addr, conf, center in data:
+                        if addr == node.get_addr():
+                            _node = self.update(
+                                "#advertise:(update from clipboard)", addr, mode, gnode_parent, conf
+                            )
+                            center_x, center_y = center.split(":")
+                            _node.get_gnode().center_x = float(center_x)
+                            _node.get_gnode().center_y = float(center_y)
+                else:
+                    for mode, addr, conf, center in data:
+                        _node = self.update(
+                            "#advertise:(update from clipboard)", addr, mode, gnode_parent, conf
+                        )
+                        center_x, center_y = center.split(":")
+                        _node.get_gnode().center_x = float(center_x)
+                        _node.get_gnode().center_y = float(center_y)
+            else:
+                print("Data illformatted when updating from clipboard:"), text
+        except:
+            # no matter what exception happens when pasting from clipboard
+            # let's not let it shut the threads down
+            #    (for now handle the execptions very simply)
+            pass
 
     def removeOutdated(self):
         # remove outdated nodes
