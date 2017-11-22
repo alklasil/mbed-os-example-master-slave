@@ -80,4 +80,3 @@ You can also configure every node at once.
            and configure a light to listen to that same address
     -> works as if the light listened for only certain addresses and responded to them
 
-
