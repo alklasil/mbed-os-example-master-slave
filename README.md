@@ -1,5 +1,4 @@
-# 2017-arm-SoftwareProject
-
+# Master-slave example application for mbed OS
 This is a smart home IoT project. The current state of the project is _working prototype_. The aim of the project is to develop software for configuring [mesh nodes](ARMmbed/mbed-os-example-mesh-minimal) in a [mbed](https://www.mbed.com/en/) network in such a way that they _obey commands (such as turning a led on / off) from_ only certain nodes.
 
 ## Getting started
