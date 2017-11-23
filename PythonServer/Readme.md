@@ -1,20 +1,21 @@
-**Usage:**
+# PythonServer
 
-**Do beforehand**
-1. set default interface to the interface to which the mbed network in connected to
-  (for example ethernet)
-  * The interface is not configurable as a commandline argument as of yet
 
-**Command**
+### Usage
+
+```
 $ python main.py
+```
 
-**Gui**
- * "send" -> send message written in the textinput to the physical node
- * "more" -> show more options, information, ...
+**TODO**: Add some figures here as a basic help guide.
 
-**Required**
-Download Kivy: https://kivy.org/#home, https://kivy.org/#download
+### Required
 
-**Other**
-The program works only on Linux OS + python2 for now.
-  (Windows python socket cannot join group the same way Linux python can)
+* Computer & Linux / Debian OS .
+* Python2
+* Python2 [Kivy](https://kivy.org/#home)
+
+### Help
+
+* Make sure the default network interface is the one connected to the mbed network.
+   * This is not configurable as a commandline argument as of yet; Instead, for example: disconnect laptops wlan before connecting to the mbed router via ethernet)
