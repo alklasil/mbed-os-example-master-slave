@@ -42,7 +42,7 @@ This is a smart home IoT project. The current state of the project is _working p
 * [x] Joins a multicast group address which is defined for the demo.
 * [x] Listens for incoming advertisements from nodes.
 * [x] Displays a list of found nodes for user, separate by function (button/switch, light)
-  * The iplementation enables copying of all the nodes as a string (in which nodes are separated by newline characters) into the clipboard.
+  * The implementation enables copying of all the nodes as a string (in which nodes are separated by newline characters) into the clipboard.
   * The copied data can then be pasted and viewed / sorted as the user wishes.
   *   (It is also possible to paste the data back to the GUI)
 * [x] Allows user to create connection between a button and a light.
@@ -64,7 +64,7 @@ This is a smart home IoT project. The current state of the project is _working p
 * This is a node which contains a light bulb or LED connected to it.
 
 * [x] When receiving a controlling message from the user interface, records the address which this node should listen to for incoming switch commands.
-   * The iplementation records group_id(s) instead of address(es)
+   * The implementation records group_id(s) instead of address(es)
 * [x] When receiving a multicasted message from a button node, compares the source address to one received from UI. If matches, switches the light.
-   * The iplementation compares groups_id(s) instead of address(es).
+   * The implementation compares groups_id(s) instead of address(es).
 
