@@ -13,16 +13,9 @@ mbed development found at https://os.mbed.com/getting-started/, and make sure th
 
 When cloning the project, with two commands you can compile and load the project to a node.
 
-**The mesh node** requires 2 commands:
-
-"mbed deploy" and "mbed compile -t GCC_ARM -m K64F" 
-
-which first downloads the mbed-os to the same folder where it's installed. Then you compile it using the selected toolchain and target board.
-The toolchain used is the ARM_GCC, which is found at https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
-
-Once you have it compiled, copy the <folder name>.bin file in to the portable device (board) that is connected to your computer. It will automatically be written to the board, and start running.
+How to setup a [**mesh node**](mesh/Readme.md)
  
- **The border router** also requires 2 commands
+How to setup a [**border router**](border/Readme.md)
 
 TODO
 
