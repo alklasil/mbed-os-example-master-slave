@@ -1,7 +1,15 @@
-Usage (at the moment):
   * This project is based on the "Example mesh application for mbed OS" (https://github.com/ARMmbed/mbed-os-example-mesh-minimal)
   * This folder contains the modified versions of the files used in the above project.
-  
+
+**Usage (at the moment):**
+
+"mbed deploy" and "mbed compile -t GCC_ARM -m K64F"
+
+which first downloads the mbed-os to the same folder where it's installed. Then you compile it using the selected toolchain and target board. The toolchain used is the ARM_GCC, which is found at https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+
+Once you have it compiled, copy the .bin file in to the portable device (board) that is connected to your computer. It will automatically be written to the board, and start running.
+
+
 **message format:**
 
 The node deals with 3 different kinds of messages:
