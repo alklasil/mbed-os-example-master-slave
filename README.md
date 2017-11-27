@@ -9,16 +9,15 @@ Setting up: In order to test this yourself, follow the setup guide to start the
 mbed development found at https://os.mbed.com/getting-started/, and make sure the
 "mbed" command is available on your path.
 
-#### Compiling
+#### Setting up and installation of hardware:
 
-When cloning the project, with two commands you can compile and load the project to a node.
-
-How to setup a [**mesh node**](mesh/Readme.md)
+Setup a [**mesh node**](mesh/Readme.md)
  
-How to setup a [**border router**](border/Readme.md)
+Setup a [**border router**](border/Readme.md)
 
-TODO
+#### Setting up the UI & usage
 
+[**Python UI**](Pythonserver/Readme.md) Using the Kivy framework.
 
 #### Usage
 
