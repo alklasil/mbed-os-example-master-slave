@@ -2,16 +2,16 @@
 
 This is a prototype smart home IoT application that allows configuring a 
 master-slave network using K64F development boards that runs on Arm Mbed OS.
-The create 6lowPAN wireless mesh grid, where you can have boards configured as 
+They create a 6lowPAN wireless mesh grid, where you can have boards configured as 
 border routers, buttons and light nodes.
 
 Setting up: In order to test this yourself, follow the setup guide to start the 
-development found at https://os.mbed.com/getting-started/, and make sure the
+mbed development found at https://os.mbed.com/getting-started/, and make sure the
 "mbed" command is available on your path.
 
 #### Compiling
 
-When cloning the project, you can with two commands compile and load the project to a node.
+When cloning the project, with two commands you can compile and load the project to a node.
 
 **The mesh node** requires 2 commands:
 
