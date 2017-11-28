@@ -13,30 +13,20 @@ mbed development found at https://os.mbed.com/getting-started/, and make sure th
 
 Setup a [**mesh node**](mesh/Readme.md)
  
-Setup a [**border router**](border/Readme.md)
+Setup a [**border router**](router/Readme.md)
 
 #### Setting up the UI & usage
 
-[**Python UI**](Pythonserver/Readme.md) Using the Kivy framework.
+[**Python UI**](PythonServer/Readme.md) Using the Kivy framework.
 
-#### Usage
+Example situation:
 
-The python server requires python to be installed on your system, as well as the kivy framework. https://kivy.org/#download
-It's a simple framework that allows for creating simple user interfaces.
+This technology and solution could be ideal when you want to create a lighting setup where the wiring is a challenge.
+Basically any situation where master/slave communication is required and the wiring is difficult to setup. This technology
+and solution can provide a good alternative.
 
-It runs with the command "python main.py", and attaches itself to the default web interface. 
-Make sure you have ethernet plugged in to the border router, it listens to the mesh network 
-through the border router.
 
-Currently you configure the nodes using this interface, by assigning each node discovered in
-in the network one or multiple slave groups, one or multiple master groups or many of both.
-You type the command as 
-"conf;g1,g2,g3,g4;g4,g5,g6;"
-To assign it to the master groups 1,2,3,4 and slave groups 4,5,6.
-
-You can also configure every node at once.
-
-**REQUIREMENTS**
+#### This was created as a university project, below are the initial requirements given to us by the employer.
 
 
 **_Requirements for User Interface_**
@@ -46,7 +36,7 @@ You can also configure every node at once.
 * [x] (~list) Displays a list of found nodes for user, separate by function (button/switch, light)
   * **TODO:** possibility for displaying the nodes as a list (separated by node_mode)
 * [x] Allows user to create connection between a button and a light.
-  * **TODO:** make simplier
+  * **TODO:** make simpler
 * [x] When creating connection, send a unicast message for node telling which button to listen to.
 
 **_Requirements for Node applications_**
