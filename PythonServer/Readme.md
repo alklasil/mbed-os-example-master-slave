@@ -1,26 +1,19 @@
-#### **Usage:**
+# PythonServer
 
-**Steps before starting program**
-1. set default interface to the interface to which the mbed network in connected to
-  (for example ethernet)
-  * The interface is not configurable as a commandline argument as of yet
 
-**Command**
+### Usage
+
+```
 $ python main.py
+```
 
-**Gui**
- * "send" -> send message written in the textinput to the physical node
- * "more" -> show more options, information, ...
+### Required
 
-Currently you configure the nodes using this interface, by assigning each node discovered in
-in the network one or multiple slave groups, one or multiple master groups or many of both.
-You type the command as 
-"conf;g1,g2,g3,g4;g4,g5,g6;"
-To assign it to the master groups 1,2,3,4 and slave groups 4,5,6.
+* Computer & Linux / Debian OS .
+* Python2
+* Python2 [Kivy](https://kivy.org/#home)
 
-**Required**
-Download Kivy: https://kivy.org/#home, https://kivy.org/#download
+### Help
 
-**Other**
-The program works only on Linux OS + python2 for now.
-  (Windows python socket cannot join group the same way Linux python can)
+* Make sure the default network interface is the one connected to the mbed network.
+   * This is not configurable as a commandline argument as of yet; Instead, for example: disconnect laptops wlan before connecting to the mbed router via ethernet)

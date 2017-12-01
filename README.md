@@ -1,55 +1,55 @@
-# 2017-arm-ohjelmistoprojekti
+# Master-slave example application for mbed OS
+This is a smart home IoT project. The current state of the project is _working prototype_. The aim of the project is to develop software for configuring [mesh nodes](ARMmbed/mbed-os-example-mesh-minimal) in a [mbed](https://www.mbed.com/en/) network in such a way that they _obey commands (such as turning a led on / off) from_ only certain nodes.
 
-This is a prototype smart home IoT application that allows configuring a 
-master-slave network using K64F development boards that runs on Arm Mbed OS.
-They create a 6lowPAN wireless mesh grid, where you can have boards configured as 
-border routers, buttons and light nodes.
+## Getting started
 
-Setting up: In order to test this yourself, follow the setup guide to start the 
-mbed development found at https://os.mbed.com/getting-started/, and make sure the
-"mbed" command is available on your path.
+### Architecture
 
-#### Setting up and installation of hardware:
+* (Zero or more instances) [Python GUI](PythonServer).
+* (Zero or more instances) [Modified mbed-os-example-mesh-minimal](mesh) ([see Original](ARMmbed/mbed-os-example-mesh-minimal)).
+* (One instance) [Modified nanostack-border-router](router) ([see Original](ARMmbed/nanostack-border-router)).
 
-Setup a [**mesh node**](mesh/Readme.md)
- 
-Setup a [**border router**](border/Readme.md)
+**The software is currently configured for the architecture below:**
+![architecture-example-provided-seppo-takalo](images/architecture-example.png)
 
-#### Setting up the UI & usage
+### Required
 
-[**Python UI**](Pythonserver/Readme.md) Using the Kivy framework.
+* The [mesh](mesh) and router [router](router) nodes are configured for the following hardware:
+  * [An FRDM-K64F development board (client end-point).](https://os.mbed.com/platforms/FRDM-K64F/)
+  * [An mbed 6LoWPAN shield (with a radio module).](https://l-tek.si/web-shop/l-tek-6lowpan-arduino-shield-900mhz/)
+* The [GUI](PythonServer) works on Linux / Debian operating systems.
 
-#### Usage
+### Setup
 
-The python server requires python to be installed on your system, as well as the kivy framework. https://kivy.org/#download
-It's a simple framework that allows for creating simple user interfaces.
+1. First [get a router running](router).
+2. Then [get one or more mesh nodes running](mesh).
+3. And last but not least, [let the GUI join the party](PythonServer).
 
-It runs with the command "python main.py", and attaches itself to the default web interface. 
-Make sure you have ethernet plugged in to the border router, it listens to the mesh network 
-through the border router.
+### Examples
 
-Currently you configure the nodes using this interface, by assigning each node discovered in
-in the network one or multiple slave groups, one or multiple master groups or many of both.
-You type the command as 
-"conf;g1,g2,g3,g4;g4,g5,g6;"
-To assign it to the master groups 1,2,3,4 and slave groups 4,5,6.
+**Configure a node**
+![ui2node-unicast](images/ui2node-unicast.png)
 
-You can also configure every node at once.
-
-**REQUIREMENTS**
+**Force all nodes to advertise (identify themselves)**
+![ui2node-multicast](images/ui2node-multicast.png)
 
 
-**_Requirements for User Interface_**
+### REQUIREMENTS (Course work requirements)
+
+
+#### _Requirements for User Interface_
 
 * [x] Joins a multicast group address which is defined for the demo.
 * [x] Listens for incoming advertisements from nodes.
-* [x] (~list) Displays a list of found nodes for user, separate by function (button/switch, light)
-  * **TODO:** possibility for displaying the nodes as a list (separated by node_mode)
+* [x] Displays a list of found nodes for user, separate by function (button/switch, light)
+  * The implementation enables copying of all the nodes as a string (in which nodes are separated by newline characters) into the clipboard.
+  * The copied data can then be pasted and viewed / sorted as the user wishes.
+  *   (It is also possible to paste the data back to the GUI)
 * [x] Allows user to create connection between a button and a light.
-  * **TODO:** make simplier
+  * Implemented, though simpler interface would be appreciated.
 * [x] When creating connection, send a unicast message for node telling which button to listen to.
 
-**_Requirements for Node applications_**
+#### _Requirements for Node applications_
 
 * Node may refer to a button or a lighting node which both contain very similar software.
   * Only advertise message is different at the moment
@@ -59,17 +59,12 @@ You can also configure every node at once.
 * [x] Once connected node joins to a specified multicast group
 * [x] Node listens for UDP messages on port 1030
 
-**_Requirements for Light node_**
+#### _Requirements for Light node_
 
 * This is a node which contains a light bulb or LED connected to it.
 
 * [x] When receiving a controlling message from the user interface, records the address which this node should listen to for incoming switch commands.
-  * At the moment address ≃ group_id, it's stupid to use addresses as they only waste bytes
+   * The implementation records group_id(s) instead of address(es)
 * [x] When receiving a multicasted message from a button node, compares the source address to one received from UI. If matches, switches the light.
-  * address ≃ group_id
-
-* HOX! You can configure a button to send its own address as the master_group id
-           and configure a light to listen to that same address
-    -> works as if the light listened for only certain addresses and responded to them
-
+   * The implementation compares groups_id(s) instead of address(es).
 

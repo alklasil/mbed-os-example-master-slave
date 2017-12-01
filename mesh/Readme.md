@@ -1,45 +1,68 @@
-  * This project is based on the "Example mesh application for mbed OS" (https://github.com/ARMmbed/mbed-os-example-mesh-minimal)
-  * This folder contains the modified versions of the files used in the above project.
+# Mesh-node
 
-**Usage (at the moment):**
+This is based on [mbed-os-example-mesh-minimal](https://github.com/ARMmbed/mbed-os-example-mesh-minimal)
 
-"mbed deploy" and "mbed compile -t GCC_ARM -m K64F"
+### Download the application
 
-which first downloads the mbed-os to the same folder where it's installed. Then you compile it using the selected toolchain and target board. The toolchain used is the ARM_GCC, which is found at https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+* This folder contains all the required files for compiling the application.
+* You can either clone the repo or download the zip.
 
-Once you have it compiled, copy the .bin file in to the portable device (board) that is connected to your computer. It will automatically be written to the board, and start running.
+### [Compile the application](https://github.com/ARMmbed/mbed-os-example-mesh-minimal#compile-the-application)
+
+#### [Default configuration](https://github.com/alklasil/2017-arm-ohjelmistoprojekti/tree/documentation-update#required)
+
+```
+mbed deploy
+mbed compile
+```
+
+* To modify the configuration, follow the instructions given in [mbed-os-example-mesh-minimal](https://github.com/ARMmbed/mbed-os-example-mesh-minimal).
+
+#### [Program the target](https://github.com/ARMmbed/mbed-os-example-mesh-minimal#program-the-target)
+
+Drag and drop the binary to the target to program the application.
 
 
-**message format:**
+### Specifications
 
-The node deals with 3 different kinds of messages:
-  * (1) messages that the nodes do not need to care about (such as advertise to the backhaul network)
-  * (2) control messages (such as light control messages)
-    * when a node receives a control message, it checks whether the sender is its master
-    * if the sender is a master, the receiver acts according to the control message, otherwise the receiver ignores the control message
-  * (3) configuration messages (such as setting master_buffer and slave_buffer):
-    * when a node receives this kind of message, it configures itself according to the instructions
-    * (at the moment any single node can configure any single node (or all nodes) without requiring authentication [at least at the moment])
-    * for now the UI uses these messages to configure the nodes to listen/send to only certain nodes (certain groups).
+#### Common
+* A running node listens for unicast and multicast udp messages.
+* A running node sends multicast udp messages.
+* A running node advertises itself in predetermined time intervals (default = 30 s).
+  * advertise = multicast mode and state.
+    * mode = light, button, ...
+      * This is the only difference between nodes.
+      * Modify ADVERTISE_TO_BACKHAUL_NETWORK_STRING in mesh_led_control_example.cpp to change mode
+    * state = on, off, ...
+
+
+#### Message format:
+
+There are 3 different kinds of messages:
+  * (1) Ignore (such as advertise messages to backhaul network)
+  * (2) Control (such as light control messages)
+    * Receive -> check whether to obey or ignore and act accordingly.
+  * (3) Configure (such as setting master_buffer and slave_buffer):
+    * Receive -> configure according to the received instructions.
+    * UI uses these messages to configure the master_groups and slave_groups.
   
-**More information and examples**
+#### Examples
 
 * Advertise: "#advertise:mode;s:%d;", state
-  * for example: "#advertise:button;s:%d;", state
-* light control: "%s;t:lights;s:?;", master_buffer ? master_buffer : "g"
-  * for example: "group1;t:lights;s:?;"
-* configuration: "conf;slave_buffer;master_buffer"
+  * Example 1: "#advertise:button;s:%d;", state
+  * Example 2: "#advertise:light;s:%d;", state
+* Light control: "%s;t:lights;s:?;", master_buffer ? master_buffer : "g"
+  * Example 1: "group1;t:lights;s:?;"
+* Configuration: "conf;slave_buffer;master_buffer"
   * format(slave_buffer) == format(master_buffer) = "group1,grup2,grup3,...,groupN;"
-  * for example: 
-    *node1: "conf;hall,bedroom;hall,upstairs;"
-    *node2: "conf;upstairs;;"
-    *node3: "conf;mount_everest;moon;"
-    -> node1 sends message to its master groups:
-      -> e.g., light control message gets send to the groups "hall" and "upstairs"
-    -> nodes in the network (including the sender) listen messages to the groups they are slaves in:
-      -> e.g., node1 itself belongs to the "hall" group and thus switches its state
-      ->       node2 belongs to the "upstairs" group and thus switches its state
-      ->       node3 receives the message but does not belong to any of the groups the message was sent to and thus nodes not change state
-                  (not slave_groups(node3) in master_groups(node2))
-  
- 
+  * Example 1: 
+    * (1.1) Confirure node1: "conf;hall,bedroom;hall,upstairs;"
+    * (1.2) Confirure node2: "conf;upstairs;;"
+    * (1.3) Confirure node3: "conf;mount_everest;moon;"
+    * (2) node1 sends light control message to its master_groups "hall" and "upstairs":
+    * (3) nodes in the network (including the sender) listen messages to any of their slave_groups:
+      * (3.1) node1 belongs to the "hall" group as a slave and thus switches its state
+      * (3.2) node2 belongs to the "upstairs" group as a slave and thus switches its state
+      * (3.3) node3 belongs to neither "hall" group nor "upstairs" group as a slave and thus does not switch its state
+
+See master/Readme.md for more examples.
