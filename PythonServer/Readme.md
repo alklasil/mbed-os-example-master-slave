@@ -7,8 +7,6 @@
 $ python main.py
 ```
 
-**TODO**: Add some figures here as a basic help guide.
-
 ### Required
 
 * Computer & Linux / Debian OS .
