@@ -41,7 +41,7 @@ Drag and drop the binary to the target to program the application.
 There are 3 different kinds of messages:
   * (1) Ignore (such as advertise messages to backhaul network)
   * (2) Control (such as light control messages)
-    * Receive -> check whether to obey or ignore and act accordingly.
+    * Receive -> check whether to obey or ignore and act accordingly (see Examples below).
   * (3) Configure (such as setting master_buffer and slave_buffer):
     * Receive -> configure according to the received instructions.
     * UI uses these messages to configure the master_groups and slave_groups.
@@ -52,7 +52,7 @@ There are 3 different kinds of messages:
   * Example 1: "#advertise:button;s:%d;", state
   * Example 2: "#advertise:light;s:%d;", state
 * Light control: "%s;t:lights;s:?;", master_buffer ? master_buffer : "g"
-  * Example 1: "group1;t:lights;s:?;"
+  * Example 1: "group1;t:lights;s:?;" (See Configuration examples below)
 * Configuration: "conf;slave_buffer;master_buffer"
   * format(slave_buffer) == format(master_buffer) = "group1,grup2,grup3,...,groupN;"
   * Example 1: 
@@ -64,5 +64,15 @@ There are 3 different kinds of messages:
       * (3.1) node1 belongs to the "hall" group as a slave and thus switches its state
       * (3.2) node2 belongs to the "upstairs" group as a slave and thus switches its state
       * (3.3) node3 belongs to neither "hall" group nor "upstairs" group as a slave and thus does not switch its state
+  * Example 2:
+    * (1.1) Confirure node1: "conf;g1;g2;"
+    * (1.2) Confirure node2: "conf;g2;g1;"
+    * (1.3) Confirure node3: "conf;g3;g;"
+    * (2) Now: nodes 1 and 2 control each other, and node3 controls all the nodes
+      * "g2" in "g1" -> Ignore, "g2" in "g2" -> Obey (and so on)
+      * "g" in "g1" -> Obey, "g" in "g2" -> Obey, "g" in "g3" -> Obey
+        * -> If node3 sends control message, all the nodes (1,2,3) obey
+        * -> If node1 (node2) sends control message, only node2 (node1) obeys
+
 
 See master/Readme.md for more examples.
