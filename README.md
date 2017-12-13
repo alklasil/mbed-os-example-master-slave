@@ -6,8 +6,8 @@ This is a smart home IoT project. The current state of the project is _working p
 ### Architecture
 
 * (Zero or more instances) [Python GUI](PythonServer).
-* (Zero or more instances) [Modified mbed-os-example-mesh-minimal](mesh) ([see Original](ARMmbed/mbed-os-example-mesh-minimal)).
-* (One instance) [Modified nanostack-border-router](router) ([see Original](ARMmbed/nanostack-border-router)).
+* (Zero or more instances) [Modified mbed-os-example-mesh-minimal](mesh) ([see Original](https://github.com/ARMmbed/mbed-os-example-mesh-minimal)).
+* (One instance) [Modified nanostack-border-router](router) ([see Original](https://github.com/ARMmbed/nanostack-border-router)).
 
 **The software is currently configured for the architecture below:**
 ![architecture-example-provided-seppo-takalo](images/architecture-example.png)
